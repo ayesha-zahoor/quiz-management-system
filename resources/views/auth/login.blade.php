@@ -1,8 +1,6 @@
 
 @extends('layouts.auth')
-
 @section('title', 'Sign In | Quiz Management System')
-
 @section('content')
 
 <div class="login-header">
@@ -698,7 +696,7 @@
                 console.log(role);
                 localStorage.setItem('api_token',token);
                 if (role === 'system_admin') {
-        window.location.href = '/superadmin/dashboard';
+        window.location.href = '/superAdmin/dashboard';
     }
       else if(role === 'institute_admin') {
         window.location.href = '/instituteAdmin/dashboard';

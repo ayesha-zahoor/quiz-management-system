@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth.login');
 });
-Route::get('/superadmin/dashboard', function () {
-    return view('superadmin.dashboard');
+Route::get('/superAdmin/dashboard', function () {
+    return view('superAdmin.dashboard');
 });
 
 Route::get('/instituteAdmin/dashboard', function () {
