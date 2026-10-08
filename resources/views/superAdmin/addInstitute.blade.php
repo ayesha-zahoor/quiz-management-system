@@ -35,7 +35,7 @@
 @section('content')
 
 <div class="container-fluid px-0 ms-auto">
-        <a href="/superadmin/dashboard" class="btn btn-outline-secondary">
+        <a href='/superAdmin/dashboard' class="btn btn-outline-secondary">
         <span>Back</span>
     </a>
     <div id="formAlert" class="alert-box"></div>

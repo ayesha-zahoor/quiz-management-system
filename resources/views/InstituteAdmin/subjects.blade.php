@@ -24,7 +24,7 @@
         <span>Subjects</span>
     </a>
 
-    <a href="#" class="nav-link">
+    <a href='/instituteAdmin/teachers' class="nav-link">
         <i class="bi bi-person-badge"></i>
         <span>Teachers</span>
     </a>

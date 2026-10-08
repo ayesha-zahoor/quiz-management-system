@@ -33,7 +33,7 @@
             <span>Students</span>
         </a>
 
-        <a href="#" class="nav-item">
+        <a href='/instituteAdmin/teachers' class="nav-item">
             <i class="bi bi-person-workspace"></i>
             <span>Teachers</span>
         </a>

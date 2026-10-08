@@ -7,7 +7,7 @@
 
 @section('sidebar')
 
-    <a href="/superadmin/dashboard" class="nav-item">
+    <a href='/superAdmin/dashboard' class="nav-item">
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </a>
