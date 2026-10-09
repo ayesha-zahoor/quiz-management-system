@@ -28,7 +28,7 @@
             <span>Dashboard</span>
         </a>
 
-        <a href="#" class="nav-item">
+        <a href= '/instituteAdmin/students' class="nav-item">
             <i class="bi bi-people-fill"></i>
             <span>Students</span>
         </a>

@@ -358,7 +358,7 @@
             </div>
 
 
-            <div class="side-card account-card mt-4">
+            <!-- <div class="side-card account-card mt-4">
 
                 <div class="account-icon">
                     <i class="bi bi-info-circle"></i>
@@ -376,7 +376,7 @@
 
                 </div>
 
-            </div>
+            </div> -->
 
         </div>
 
@@ -1002,7 +1002,8 @@ profileForm.addEventListener('submit', function (event) {
             );
 
             instituteForm.reset();
-            window.location.href="/superadmin/dashboard";
+                       window.location.href='/superAdmin/dashboard';
+
 
         },
         error: function (xhr) {

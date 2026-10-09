@@ -15,8 +15,8 @@ Route::get('/superAdmin/dashboard', function () {
 Route::get('/instituteAdmin/dashboard', function () {
     return view('InstituteAdmin.dashboard');
 });
-Route::get('/superadmin/addInstitute', function () {
-    return view('superadmin.addInstitute');
+Route::get('/superAdmin/addInstitute', function () {
+    return view('superAdmin.addInstitute');
     });
     
     Route::get('/superAdmin/edit/{id}',[InstituteController::class, 'edit']);
@@ -30,4 +30,7 @@ Route::get('/superadmin/addInstitute', function () {
     });
     Route::get('/instituteAdmin/teachers', function () {
         return view('InstituteAdmin.teachers');
+    });
+     Route::get('/instituteAdmin/students', function () {
+        return view('InstituteAdmin.students');
     });

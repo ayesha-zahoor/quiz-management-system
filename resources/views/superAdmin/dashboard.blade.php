@@ -1,75 +1,38 @@
 @extends('layouts.app')
 
-@section('user-role', 'Super Admin')
+@section('user-role', 'Platform Administrator')
 @section('page-title', 'Dashboard')
 @section('page-description', 'Manage institutes, administrators, and platform configuration')
 
 @section('sidebar')
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <i class="bi bi-mortarboard-fill"></i>
-        </div>
-        <div>
-            <div class="sidebar-brand-title">Quiz Management</div>
-            <div class="sidebar-brand-subtitle">Administration Portal</div>
-        </div>
-    </div>
+    <div class="sidebar-section-label">Main</div>
 
-    <nav class="sidebar-nav">
-        <div class="sidebar-section-label">MAIN</div>
-
-        <a href='/superAdmin/dashboard' class="nav-item">
+    <a href="/superAdmin/dashboard" class="nav-item active">
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </a>
-{{-- 
-        <a href="#" class="sidebar-nav-item">
-            <i class="bi bi-building"></i>
-            <span>Institutes</span>
-        </a> --}}
 
-        {{-- <a href="#" class="sidebar-nav-item">
-            <i class="bi bi-person-badge"></i>
-            <span>Institute Admins</span>
-        </a>
-
-        <div class="sidebar-section-label mt-4">SYSTEM</div>
-
-        <a href="#" class="sidebar-nav-item">
-            <i class="bi bi-sliders2"></i>
-            <span>Configuration</span>
-        </a> --}}
-<a href="#" id="profileLink" class="nav-item">
-            <i class="bi bi-person-circle"></i>
-            <span>Profile</span>
-        </a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="sidebar-user-avatar">
-                SA
-            </div>
-            <div class="sidebar-user-info">
-                <div class="sidebar-user-name">Super Admin</div>
-                <div class="sidebar-user-role">Platform Administrator</div>
-            </div>
-            <button type="button" class="sidebar-logout" title="Logout">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-        </div>
-    </div>
+    <a href="#" id="profileLink" class="nav-item">
+        <i class="bi bi-person-circle"></i>
+        <span>Profile</span>
+    </a>
 @endsection
 
 @section('content')
     <div class="dashboard-header-row">
         <div>
-            <h2 class="dashboard-welcome">Welcome back, Super Admin</h2>
+            <h2 class="dashboard-welcome"><span id="greeting">Welcome back</span>, Super Admin</h2>
             <p class="dashboard-subtitle">Here's an overview of your quiz management platform.</p>
         </div>
-        <div class="dashboard-date">
-            <i class="bi bi-calendar3"></i>
-            <span id="currentDate"></span>
+
+        <div class="header-actions">
+            <div class="dashboard-date">
+                <i class="bi bi-calendar3"></i>
+                <span id="currentDate"></span>
+            </div>
+            <a href='/superAdmin/addInstitute' class="btn-add">
+                <i class="bi bi-plus-lg"></i> Add institute
+            </a>
         </div>
     </div>
 
@@ -77,59 +40,70 @@
     <div class="row g-4 mb-4">
         <div class="col-xl-3 col-md-6">
             <div class="dashboard-stat-card">
-                <div class="stat-card-top">
-                    <div class="stat-icon"><i class="bi bi-building"></i></div>
-                    <span class="stat-label">Total Institutes</span>
+                <div class="stat-icon"><i class="bi bi-building"></i></div>
+                <div class="stat-body">
+                    <span class="stat-label">Total institutes</span>
+                    <div class="stat-value" id="totalInstitutes">0</div>
+                    <div class="stat-footer">Registered on the platform</div>
                 </div>
-                <div class="stat-value" id="totalInstitutes">0</div>
-                <div class="stat-footer"><span>Registered on the platform</span></div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
             <div class="dashboard-stat-card">
-                <div class="stat-card-top">
-                    <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
-                    <span class="stat-label">Active Institutes</span>
+                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="stat-body">
+                    <span class="stat-label">Active institutes</span>
+                    <div class="stat-value" id="activeInstitutes">0</div>
+                    <div class="stat-footer">Currently running</div>
                 </div>
-                <div class="stat-value" id="activeInstitutes">0</div>
-                <div class="stat-footer"><span>Currently running</span></div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
             <div class="dashboard-stat-card stat-danger">
-                <div class="stat-card-top">
-                    <div class="stat-icon"><i class="bi bi-slash-circle"></i></div>
-                    <span class="stat-label">Suspended / Expired</span>
+                <div class="stat-icon"><i class="bi bi-slash-circle"></i></div>
+                <div class="stat-body">
+                    <span class="stat-label">Suspended or expired</span>
+                    <div class="stat-value" id="inactiveInstitutes">0</div>
+                    <div class="stat-footer">Can't use the platform</div>
                 </div>
-                <div class="stat-value" id="inactiveInstitutes">0</div>
-                <div class="stat-footer"><span>Not able to use the platform</span></div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6">
             <div class="dashboard-stat-card stat-warning">
-                <div class="stat-card-top">
-                    <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
-                    <span class="stat-label">Expiring in 30 Days</span>
+                <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-body">
+                    <span class="stat-label">Expiring in 30 days</span>
+                    <div class="stat-value" id="expiringSoon">0</div>
+                    <div class="stat-footer">Licenses to renew soon</div>
                 </div>
-                <div class="stat-value" id="expiringSoon">0</div>
-                <div class="stat-footer"><span>Licenses to renew soon</span></div>
             </div>
         </div>
     </div>
 
-    {{-- Institutes table (full width) --}}
-    <div class="dashboard-panel mb-4">
+    {{-- Institutes table --}}
+    <div class="dashboard-panel">
         <div class="dashboard-panel-header">
             <div>
                 <h5>Institutes</h5>
-                <p>Institutes with their administrator, contact and license details</p>
+                <p>Administrator, contact and license details for each institute</p>
             </div>
-            <a href="/superadmin/institutes" class="panel-action">
-                View All <i class="bi bi-arrow-right"></i>
-            </a>
+
+            <div class="panel-tools">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="search" id="instituteSearch" placeholder="Search institutes" aria-label="Search institutes">
+                </div>
+                <select id="statusFilter" class="form-select filter-select" aria-label="Filter by status">
+                    <option value="">All statuses</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="expired">Expired</option>
+                </select>
+               
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -137,7 +111,7 @@
                 <thead>
                     <tr>
                         <th>Institute</th>
-                        <th>Contact &amp; Location</th>
+                        <th>Contact &amp; location</th>
                         <th>Administrator</th>
                         <th>License</th>
                         <th>Status</th>
@@ -145,66 +119,18 @@
                     </tr>
                 </thead>
                 <tbody class="tableData">
-                    <tr><td colspan="6" class="text-center text-muted py-4">Loading...</td></tr>
+                    @for ($i = 0; $i < 3; $i++)
+                        <tr class="skeleton-row">
+                            <td><div class="skeleton" style="width:180px"></div></td>
+                            <td><div class="skeleton" style="width:130px"></div></td>
+                            <td><div class="skeleton" style="width:160px"></div></td>
+                            <td><div class="skeleton" style="width:90px"></div></td>
+                            <td><div class="skeleton" style="width:60px"></div></td>
+                            <td><div class="skeleton ms-auto" style="width:60px"></div></td>
+                        </tr>
+                    @endfor
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        {{-- License alerts --}}
-        <div class="col-xl-8">
-            <div class="dashboard-panel h-100">
-                <div class="dashboard-panel-header">
-                    <div>
-                        <h5>License Alerts</h5>
-                        <p>Expired, suspended or expiring within 30 days</p>
-                    </div>
-                </div>
-                <div class="alert-list" id="licenseAlerts">
-                    <div class="alert-empty">Loading...</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Quick actions --}}
-        <div class="col-xl-4">
-            <div class="dashboard-panel h-100">
-                <div class="dashboard-panel-header">
-                    <div>
-                        <h5>Quick Actions</h5>
-                        <p>Common administration tasks</p>
-                    </div>
-                </div>
-                <div class="quick-actions">
-                    <a href="/superadmin/addInstitute" class="quick-action">
-                        <div class="quick-action-icon"><i class="bi bi-building-add"></i></div>
-                        <div class="quick-action-content">
-                            <strong>Add Institute</strong>
-                            <span>Institute, admin and colors in one step</span>
-                        </div>
-                        <i class="bi bi-chevron-right quick-action-arrow"></i>
-                    </a>
-
-                    {{-- <a href="/superadmin/institutes" class="quick-action">
-                        <div class="quick-action-icon"><i class="bi bi-buildings"></i></div>
-                        <div class="quick-action-content">
-                            <strong>Manage Institutes</strong>
-                            <span>Search, edit, suspend or renew</span>
-                        </div>
-                        <i class="bi bi-chevron-right quick-action-arrow"></i>
-                    </a>
-
-                    <a href="/superadmin/configuration" class="quick-action">
-                        <div class="quick-action-icon"><i class="bi bi-sliders2"></i></div>
-                        <div class="quick-action-content">
-                            <strong>Platform Configuration</strong>
-                            <span>Manage system settings</span>
-                        </div>
-                        <i class="bi bi-chevron-right quick-action-arrow"></i>
-                    </a> --}}
-                </div>
-            </div>
         </div>
     </div>
 @endsection
@@ -216,156 +142,169 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 20px;
-        margin-bottom: 28px;
+        margin-bottom: 26px;
     }
 
     .dashboard-welcome {
         margin: 0 0 5px;
-        font-size: 25px;
+        font-size: 26px;
         font-weight: 700;
         color: var(--dark-text);
-        letter-spacing: -0.4px;
+        letter-spacing: -0.5px;
     }
 
-    .dashboard-subtitle {
-        margin: 0;
-        color: var(--slate);
-        font-size: 14px;
-    }
+    .dashboard-subtitle { margin: 0; color: var(--slate); font-size: 14px; }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
 
     .dashboard-date {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 9px 13px;
+        padding: 10px 14px;
         border: 1px solid var(--slate-light);
-        border-radius: 8px;
-        background: var(--white);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.85);
         color: var(--slate);
         font-size: 13px;
         white-space: nowrap;
     }
 
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: var(--navy);
+        color: var(--white);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 8px 18px -8px rgba(11, 17, 32, 0.55);
+        transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+    .btn-add i { color: var(--lime); }
+    .btn-add:hover { background: var(--lime); color: var(--navy); }
+    .btn-add:hover i { color: var(--navy); }
+    .btn-add:active { transform: scale(0.97); }
+
+    /* ---------- Stat cards ---------- */
     .dashboard-stat-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        height: 100%;
+        padding: 20px;
         background: var(--white);
         border: 1px solid var(--slate-light);
-        border-radius: 12px;
-        padding: 20px;
-        height: 100%;
-        transition: border-color 0.2s ease, transform 0.2s ease;
+        border-radius: 14px;
+        box-shadow: var(--shadow-sm);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .dashboard-stat-card:hover {
-        border-color: var(--lime);
-        transform: translateY(-2px);
-    }
-
-    .stat-card-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-    }
+    .dashboard-stat-card:hover { border-color: var(--lime); box-shadow: var(--shadow-md); }
 
     .stat-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 9px;
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        border-radius: 12px;
         background: var(--lime-light);
         color: var(--lime-dark);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 19px;
+        font-size: 20px;
     }
 
-    .stat-label {
-        color: var(--slate);
-        font-size: 13px;
-        font-weight: 600;
-        text-align: right;
-    }
-
+    .stat-body { min-width: 0; }
+    .stat-label { display: block; color: var(--slate); font-size: 13px; font-weight: 600; }
     .stat-value {
-        margin-top: 18px;
-        font-size: 30px;
+        margin-top: 6px;
+        font-size: 32px;
         line-height: 1;
         font-weight: 700;
         color: var(--dark-text);
+        font-variant-numeric: tabular-nums;
     }
+    .stat-footer { margin-top: 10px; color: var(--slate); font-size: 12px; }
 
-    .stat-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 13px;
-        color: var(--slate);
-        font-size: 12px;
-    }
+    .dashboard-stat-card.stat-danger .stat-icon { background: #fee2e2; color: #dc2626; }
+    .dashboard-stat-card.stat-warning .stat-icon { background: #fef3c7; color: #d97706; }
 
-    .stat-footer i {
-        color: var(--lime-dark);
-        font-size: 14px;
-    }
-
+    /* ---------- Panel ---------- */
     .dashboard-panel {
         background: var(--white);
         border: 1px solid var(--slate-light);
-        border-radius: 12px;
+        border-radius: 14px;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
     }
 
     .dashboard-panel-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
         gap: 15px;
         padding: 20px 22px;
         border-bottom: 1px solid var(--slate-light);
     }
+    .dashboard-panel-header h5 { margin: 0 0 4px; color: var(--dark-text); font-size: 16px; font-weight: 700; }
+    .dashboard-panel-header p { margin: 0; color: var(--slate); font-size: 12px; }
 
-    .dashboard-panel-header h5 {
-        margin: 0 0 4px;
-        color: var(--dark-text);
-        font-size: 16px;
-        font-weight: 700;
-    }
+    .panel-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-    .dashboard-panel-header p {
-        margin: 0;
+    .search-box { position: relative; }
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
         color: var(--slate);
-        font-size: 12px;
+        font-size: 13px;
+        pointer-events: none;
     }
+    .search-box input {
+        width: 220px;
+        height: 38px;
+        padding: 0 12px 0 34px;
+        border: 1px solid #CBD5E1;
+        border-radius: 9px;
+        font-size: 13px;
+        font-family: inherit;
+        background: var(--white);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .search-box input:focus {
+        outline: 0;
+        border-color: var(--lime);
+        box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.18);
+    }
+
+    .filter-select { width: 150px; min-height: 38px; height: 38px; padding-top: 0; padding-bottom: 0; }
 
     .panel-action {
-        border: 0;
-        background: transparent;
         color: var(--lime-dark);
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 700;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         padding: 5px;
     }
+    .panel-action:hover { color: var(--navy); }
 
-    .panel-action:hover {
-        color: var(--navy);
-    }
-
-    .dashboard-table {
-        --bs-table-bg: transparent;
-    }
+    /* ---------- Table ---------- */
+    .dashboard-table { --bs-table-bg: transparent; }
 
     .dashboard-table thead th {
         background: var(--off-white);
         color: var(--slate);
         border-bottom: 1px solid var(--slate-light);
         padding: 12px 20px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
         white-space: nowrap;
     }
 
@@ -374,26 +313,47 @@
         border-bottom: 1px solid #f1f5f9;
         color: var(--dark-text);
         font-size: 13px;
+        vertical-align: middle;
     }
+    /* Wrap long text (emails, addresses) instead of forcing a horizontal scroll */
+    .dashboard-table tbody td:nth-child(-n+3) { white-space: normal; word-break: break-word; }
+    .dashboard-table tbody td:nth-child(n+4) { white-space: nowrap; }
+    .dashboard-table thead th { padding-left: 16px; padding-right: 16px; }
+    .dashboard-table tbody td { padding-left: 16px; padding-right: 16px; }
 
-    .dashboard-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-    .table-primary-info {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        min-width: 210px;
-    }
+    /* Never show a scrollbar under the table (it still scrolls on very small screens) */
+    .dashboard-panel .table-responsive { scrollbar-width: none; -ms-overflow-style: none; }
+    .dashboard-panel .table-responsive::-webkit-scrollbar { display: none; }
+    .dashboard-table tbody tr { transition: background 0.15s ease; }
+    .dashboard-table tbody tr:hover { background: #FAFDF4; }
+    .dashboard-table tbody tr:last-child td { border-bottom: 0; }
+    .table-primary-info { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .table-primary-info > div:last-child { min-width: 0; }
 
     .table-avatar {
-        width: 34px;
-        height: 34px;
-        flex: 0 0 34px;
-        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        border-radius: 9px;
         background: var(--lime-light);
         color: var(--lime-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        object-fit: cover;
+    }
+    img.table-avatar { background: var(--white); border: 1px solid var(--slate-light); }
+
+    .person-avatar {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--navy);
+        color: var(--lime);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -401,275 +361,83 @@
         font-weight: 700;
     }
 
-    .table-primary-info strong {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--dark-text);
-    }
+    .table-primary-info strong { display: block; font-size: 13px; font-weight: 600; color: var(--dark-text); }
+    .table-primary-info small { display: block; margin-top: 2px; color: var(--slate); font-size: 12px; }
 
-    .table-primary-info small {
-        display: block;
-        margin-top: 2px;
-        color: var(--slate);
-        font-size: 11px;
-    }
-
-    .institute-code {
-        display: inline-block;
-        padding: 4px 7px;
-        border-radius: 5px;
-        background: var(--off-white);
-        color: var(--slate);
-        font-family: monospace;
-        font-size: 11px;
-    }
+    .contact-line { display: flex; align-items: center; gap: 7px; color: var(--slate); font-size: 12px; margin-bottom: 3px; }
+    .contact-line i { color: var(--lime-dark); }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
-        padding: 5px 9px;
-        border-radius: 6px;
-        font-size: 11px;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
         font-weight: 600;
+        text-transform: capitalize;
     }
-
-    .status-active {
-        background: var(--lime-light);
-        color: var(--lime-dark);
-    }
-
-    .status-inactive {
-        background: #f1f5f9;
-        color: var(--slate);
-    }
-
-    .quick-actions {
-        padding: 7px 12px 12px;
-    }
-
-    .quick-action {
-        width: 100%;
-        border: 0;
-        border-bottom: 1px solid #f1f5f9;
-        background: transparent;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        text-align: left;
-        padding: 14px 10px;
-        transition: background 0.2s ease;
-    }
-
-    .quick-action:last-child {
-        border-bottom: 0;
-    }
-
-    .quick-action:hover {
-        background: var(--off-white);
-    }
-
-    .quick-action-icon {
-        width: 38px;
-        height: 38px;
-        flex: 0 0 38px;
-        border-radius: 8px;
-        background: var(--lime-light);
-        color: var(--lime-dark);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-    }
-
-    .quick-action-content {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .quick-action-content strong {
-        display: block;
-        color: var(--dark-text);
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 2px;
-    }
-
-    .quick-action-content span {
-        display: block;
-        color: var(--slate);
-        font-size: 11px;
-    }
-
-    .quick-action-arrow {
-        color: var(--slate);
-        font-size: 13px;
-    }
-
-    .system-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 6px 10px;
-        background: var(--lime-light);
-        color: var(--lime-dark);
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .system-status-dot {
+    .status-badge::before {
+        content: "";
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--lime-dark);
+        background: currentColor;
     }
+    .status-active  { background: var(--lime-light); color: var(--lime-dark); }
+    .status-warning { background: #fef3c7; color: #b45309; }
+    .status-danger  { background: #fee2e2; color: #b91c1c; }
 
-    .platform-overview {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
+    .license-note { display: block; margin-top: 4px; color: var(--slate); font-size: 12px; }
+
+    /* ---------- Empty + loading ---------- */
+    .table-empty { padding: 44px 20px; text-align: center; color: var(--slate); }
+    .table-empty i { display: block; margin-bottom: 10px; font-size: 30px; color: var(--lime-dark); }
+    .table-empty strong { display: block; color: var(--dark-text); font-size: 14px; margin-bottom: 4px; }
+    .table-empty span { font-size: 13px; }
+    .table-empty a { color: var(--lime-dark); font-weight: 700; }
+    .table-empty.error i { color: var(--danger); }
+
+    .skeleton {
+        height: 14px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #eef2f7 25%, #f8fafc 50%, #eef2f7 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite linear;
     }
+    @keyframes shimmer { to { background-position: -200% 0; } }
 
-    .overview-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 18px 20px;
-        border-right: 1px solid var(--slate-light);
-    }
-
-    .overview-item:last-child {
-        border-right: 0;
-    }
-
-    .overview-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        background: var(--lime-light);
-        color: var(--lime-dark);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 36px;
-    }
-
-    .overview-item strong {
-        display: block;
-        color: var(--dark-text);
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 2px;
-    }
-
-    .overview-item span {
-        display: block;
-        color: var(--slate);
-        font-size: 11px;
-    }
-
+    /* ---------- Responsive ---------- */
     @media (max-width: 991.98px) {
-        .platform-overview {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .overview-item {
-            border-right: 0;
-            border-bottom: 1px solid var(--slate-light);
-        }
-
-        .overview-item:nth-child(odd) {
-            border-right: 1px solid var(--slate-light);
-        }
-
-        .overview-item:nth-last-child(-n+2) {
-            border-bottom: 0;
-        }
+        .dashboard-header-row { flex-direction: column; }
+        .header-actions { width: 100%; }
+        .header-actions .dashboard-date { flex: 1; justify-content: center; }
     }
 
     @media (max-width: 767.98px) {
-        .dashboard-header-row {
-            flex-direction: column;
-        }
-
-        .dashboard-date {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .platform-overview {
-            grid-template-columns: 1fr;
-        }
-
-        .overview-item,
-        .overview-item:nth-child(odd) {
-            border-right: 0;
-            border-bottom: 1px solid var(--slate-light);
-        }
-
-        .overview-item:last-child {
-            border-bottom: 0;
-        }
-
-        .dashboard-panel-header {
-            align-items: flex-start;
-        }
+        .dashboard-welcome { font-size: 22px; }
+        .panel-tools { width: 100%; }
+        .search-box { flex: 1 1 100%; }
+        .search-box input { width: 100%; }
+        .filter-select { flex: 1; width: auto; }
     }
-    /* Stat card variants */
-.dashboard-stat-card.stat-danger .stat-icon { background:#fee2e2; color:#dc2626; }
-.dashboard-stat-card.stat-warning .stat-icon { background:#fef3c7; color:#d97706; }
-
-/* Table */
-.dashboard-table .table-avatar { object-fit: cover; background: var(--white); border:1px solid var(--slate-light); }
-.person-avatar {
-    width: 34px; height: 34px; flex: 0 0 34px;
-    border-radius: 50%; object-fit: cover;
-    background: var(--navy); color: var(--lime);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700;
-}
-.contact-line { display:flex; align-items:center; gap:7px; color: var(--slate); font-size:12px; margin-bottom:3px; }
-.contact-line i { color: var(--lime-dark); }
-.dashboard-table td { white-space: nowrap; }
-.dashboard-table td:nth-child(2) .contact-line:last-child { white-space: normal; min-width:160px; max-width:220px; }
-
-/* Status colors */
-.status-warning { background:#fef3c7; color:#b45309; }
-.status-danger  { background:#fee2e2; color:#b91c1c; }
-
-/* License alerts */
-.alert-list { padding: 8px 14px 14px; }
-.alert-row { display:flex; align-items:center; gap:12px; padding:12px 8px; border-bottom:1px solid #f1f5f9; }
-.alert-row:last-child { border-bottom:0; }
-.alert-row-icon { width:36px; height:36px; flex:0 0 36px; border-radius:8px; display:flex; align-items:center; justify-content:center; }
-.alert-row-icon.warn { background:#fef3c7; color:#d97706; }
-.alert-row-icon.bad  { background:#fee2e2; color:#dc2626; }
-.alert-row-text { flex:1; min-width:0; }
-.alert-row-text strong { display:block; font-size:13px; font-weight:600; }
-.alert-row-text span { color: var(--slate); font-size:12px; }
-.alert-row-action { font-size:12px; font-weight:700; color: var(--lime-dark); padding:6px 12px; border-radius:6px; background: var(--lime-light); }
-.alert-row-action:hover { background: var(--lime); color: var(--navy); }
-.alert-empty { padding:30px; text-align:center; color: var(--slate); font-size:13px; }
-.alert-empty i { color: var(--lime-dark); margin-right:6px; }
-
-/* Quick actions as links */
-a.quick-action { color: inherit; text-decoration: none; }
 </style>
 @endpush
 
 @push('scripts')
 <script>
-    // const token = localStorage.getItem('api_token');
-
+    // ---------- Header ----------
     document.getElementById('currentDate').textContent =
-        new Date().toLocaleDateString('en-US', {
-            weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
-        });
+        new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 
-    function esc(text) {
-        return $('<div>').text(text ?? '').html();
-    }
+    (function () {
+        const h = new Date().getHours();
+        document.getElementById('greeting').textContent =
+            h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    })();
+
+    // ---------- Helpers ----------
+    function esc(text) { return $('<div>').text(text ?? '').html(); }
 
     function initials(name) {
         return (name || '?').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
@@ -700,128 +468,151 @@ a.quick-action { color: inherit; text-decoration: none; }
         return 'status-danger';
     }
 
+    function countUp(selector, target) {
+        const el = document.querySelector(selector);
+        if (!el) return;
+        if (!target || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            el.textContent = target; return;
+        }
+        const duration = 600, start = performance.now();
+        (function tick(now) {
+            const p = Math.min((now - start) / duration, 1);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(tick);
+        })(start);
+    }
+
+    // ---------- Table rendering ----------
+    let allInstitutes = [];
+
+    function renderRows() {
+        const q = ($('#instituteSearch').val() || '').trim().toLowerCase();
+        const status = $('#statusFilter').val();
+
+        const list = allInstitutes.filter(function (i) {
+            const admin = (i.users || []).find(u => u.role_id == 2);
+            const hay = [i.name, i.email, i.Contact, i.address, admin && admin.name, admin && admin.email]
+                .join(' ').toLowerCase();
+            return (!q || hay.includes(q)) && (!status || i.status === status);
+        });
+
+        if (!allInstitutes.length) {
+            $('.tableData').html(`<tr><td colspan="6"><div class="table-empty">
+                <i class="bi bi-building-add"></i>
+                <strong>No institutes yet</strong>
+                <span><a href="/superadmin/addInstitute">Add your first institute</a> to get started.</span>
+            </div></td></tr>`);
+            return;
+        }
+
+        if (!list.length) {
+            $('.tableData').html(`<tr><td colspan="6"><div class="table-empty">
+                <i class="bi bi-search"></i>
+                <strong>No matching institutes</strong>
+                <span>Try a different search or clear the status filter.</span>
+            </div></td></tr>`);
+            return;
+        }
+
+        let rows = '';
+
+        list.forEach(function (institute) {
+            const admin = (institute.users || []).find(u => u.role_id == 2);
+            const days  = daysLeft(institute.license_expires_at);
+
+            const logo = institute.logo
+                ? `<img src="/storage/${esc(institute.logo)}" class="table-avatar" alt="">`
+                : `<div class="table-avatar"><i class="bi bi-building"></i></div>`;
+
+            const adminAvatar = admin && admin.profile_image
+                ? `<img src="/storage/${esc(admin.profile_image)}" class="person-avatar" alt="">`
+                : `<div class="person-avatar">${admin ? initials(admin.name) : '?'}</div>`;
+
+            rows += `
+            <tr>
+                <td>
+                    <div class="table-primary-info">
+                        ${logo}
+                        <div>
+                            <strong>${esc(institute.name)}</strong>
+                            <small>${esc(institute.email) || '—'}</small>
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="contact-line"><i class="bi bi-telephone"></i> ${esc(institute.Contact) || '—'}</div>
+                    <div class="contact-line"><i class="bi bi-geo-alt"></i> ${esc(institute.address) || '—'}</div>
+                </td>
+
+                <td>
+                    ${admin ? `
+                        <div class="table-primary-info">
+                            ${adminAvatar}
+                            <div>
+                                <strong>${esc(admin.name)}</strong>
+                                <small>${esc(admin.email)}</small>
+                            </div>
+                        </div>`
+                    : `<span class="text-muted">No administrator assigned</span>`}
+                </td>
+
+                <td>
+                    ${licenseBadge(days)}
+                    ${institute.license_expires_at ? `<span class="license-note">${formatDate(institute.license_expires_at)}</span>` : ''}
+                </td>
+
+                <td><span class="status-badge ${statusClass(institute.status)}">${esc(institute.status)}</span></td>
+
+                <td class="text-end">
+                    <a href="/superAdmin/edit/${institute.id}" class="btn btn-warning">
+                        <i class="bi bi-pencil-square me-1"></i>Edit
+                    </a>
+                </td>
+            </tr>`;
+        });
+
+        $('.tableData').html(rows);
+    }
+
+    $('#instituteSearch').on('input', renderRows);
+    $('#statusFilter').on('change', renderRows);
+
+    // ---------- Load data ----------
     $.ajax({
         url: '/api/getInstitutes',
         type: 'GET',
         headers: { 'Authorization': 'Bearer ' + token },
 
         success: function (response) {
-            const institutes = response.data || [];
-            const adminId = response.admin.id;
-              document.getElementById('profileLink').href =
-        '/super-admin/profile/' + adminId;
-            console.log(response);
+            allInstitutes = response.data || [];
 
-            // ---- Stats ----
-            const active   = institutes.filter(i => i.status === 'active').length;
-            const inactive = institutes.filter(i => i.status !== 'active').length;
-            const expiring = institutes.filter(i => {
+            if (response.admin && response.admin.id) {
+                document.getElementById('profileLink').href = '/super-admin/profile/' + response.admin.id;
+            }
+
+            const active   = allInstitutes.filter(i => i.status === 'active').length;
+            const inactive = allInstitutes.filter(i => i.status !== 'active').length;
+            const expiring = allInstitutes.filter(function (i) {
                 const d = daysLeft(i.license_expires_at);
                 return d !== null && d >= 0 && d <= 30;
             }).length;
 
-            $('#totalInstitutes').text(institutes.length);
-            $('#activeInstitutes').text(active);
-            $('#inactiveInstitutes').text(inactive);
-            $('#expiringSoon').text(expiring);
+            countUp('#totalInstitutes', allInstitutes.length);
+            countUp('#activeInstitutes', active);
+            countUp('#inactiveInstitutes', inactive);
+            countUp('#expiringSoon', expiring);
 
-            // ---- Table ----
-            let rows = '';
-
-            institutes.forEach(function (institute) {
-                const admin = (institute.users || []).find(u => u.role_id == 2);
-                const days  = daysLeft(institute.license_expires_at);
-
-                const logo = institute.logo
-                    ? `<img src="/storage/${institute.logo}" class="table-avatar" alt="">`
-                    : `<div class="table-avatar"><i class="bi bi-building"></i></div>`;
-
-                const adminAvatar = admin && admin.profile_image
-                    ? `<img src="/storage/${admin.profile_image}" class="person-avatar" alt="">`
-                    : `<div class="person-avatar">${admin ? initials(admin.name) : '?'}</div>`;
-
-                rows += `
-                <tr>
-                    <td>
-                        <div class="table-primary-info">
-                            ${logo}
-                            <div>
-                                <strong>${esc(institute.name)}</strong>
-                                <small>${esc(institute.email) || '—'}</small>
-                            </div>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class="contact-line"><i class="bi bi-telephone"></i> ${esc(institute.Contact) || '—'}</div>
-                        <div class="contact-line"><i class="bi bi-geo-alt"></i> ${esc(institute.address) || '—'}</div>
-                    </td>
-
-                    <td>
-                        ${admin ? `
-                            <div class="table-primary-info">
-                                ${adminAvatar}
-                                <div>
-                                    <strong>${esc(admin.name)}</strong>
-                                    <small>${esc(admin.email)}</small>
-                                </div>
-                            </div>`
-                        : `<span class="text-muted">No administrator assigned</span>`}
-                    </td>
-
-                    <td>
-                        ${licenseBadge(days)}
-                        <small class="d-block text-muted mt-1">${formatDate(institute.license_expires_at)}</small>
-                    </td>
-
-                    <td>
-                        <span class="status-badge ${statusClass(institute.status)}">${esc(institute.status)}</span>
-                    </td>
-
-                    <td class="text-end">
-                        <a href="/superAdmin/edit/${institute.id}" class="btn btn-warning">
-                            <i class="bi bi-pencil-square me-1"></i>Edit
-                        </a>
-                    </td>
-                </tr>`;
-            });
-
-            $('.tableData').html(rows || `<tr><td colspan="6" class="text-center text-muted py-4">No institutes yet.</td></tr>`);
-
-            // ---- License alerts ----
-            const alerts = institutes
-                .map(i => ({ ...i, days: daysLeft(i.license_expires_at) }))
-                .filter(i => i.status !== 'active' || (i.days !== null && i.days <= 30))
-                .sort((a, b) => (a.days ?? 9999) - (b.days ?? 9999));
-
-            let alertHtml = '';
-
-            alerts.forEach(function (i) {
-                const message = i.status === 'suspended' ? 'Suspended'
-                    : i.days === null ? 'No expiry date set'
-                    : i.days < 0 ? `License expired ${Math.abs(i.days)} day(s) ago`
-                    : `License expires in ${i.days} day(s)`;
-
-                alertHtml += `
-                <div class="alert-row">
-                    <div class="alert-row-icon ${i.days !== null && i.days >= 0 && i.status === 'active' ? 'warn' : 'bad'}">
-                        <i class="bi bi-exclamation-triangle"></i>
-                    </div>
-                    <div class="alert-row-text">
-                        <strong>${esc(i.name)}</strong>
-                        <span>${message} · ${formatDate(i.license_expires_at)}</span>
-                    </div>
-                    <a href="/superAdmin/edit/${i.id}" class="alert-row-action">Renew</a>
-                </div>`;
-            });
-
-            $('#licenseAlerts').html(alertHtml ||
-                `<div class="alert-empty"><i class="bi bi-check-circle"></i> All licenses are healthy.</div>`);
+            renderRows();
         },
 
         error: function (xhr) {
             console.log('Institutes error:', xhr);
-            $('.tableData').html(`<tr><td colspan="6" class="text-center text-danger py-4">Could not load institutes.</td></tr>`);
+            $('.tableData').html(`<tr><td colspan="6"><div class="table-empty error">
+                <i class="bi bi-exclamation-circle"></i>
+                <strong>Couldn't load institutes</strong>
+                <span>Check your connection and <a href="#" onclick="location.reload();return false;">try again</a>.</span>
+            </div></td></tr>`);
         }
     });
 </script>
