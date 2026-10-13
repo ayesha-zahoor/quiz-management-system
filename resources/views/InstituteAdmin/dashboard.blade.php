@@ -1,1794 +1,772 @@
-
 @extends('layouts.institute')
 
-
+@section('title', 'Dashboard')
 @section('user-role', 'Institute Admin')
 @section('page-title', 'Dashboard')
 @section('page-description', 'Manage your institute, classes, teachers, and subjects')
 
-@section('sidebar')
-
-    <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <i class="bi bi-mortarboard-fill"></i>
-        </div>
-
-        <div>
-            <div class="sidebar-brand-title">Quiz Management</div>
-            <div class="sidebar-brand-subtitle">Administration Portal</div>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-
-        <div class="sidebar-section-label">MAIN</div>
-
-        <a href="/instituteAdmin/dashboard" class="nav-item">
-            <i class="bi bi-grid-1x2-fill"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <a href= '/instituteAdmin/students' class="nav-item">
-            <i class="bi bi-people-fill"></i>
-            <span>Students</span>
-        </a>
-
-        <a href='/instituteAdmin/teachers' class="nav-item">
-            <i class="bi bi-person-workspace"></i>
-            <span>Teachers</span>
-        </a>
-
-        <a href='/instituteAdmin/classes' class="nav-item">
-            <i class="bi bi-building"></i>
-            <span>Classes</span>
-        </a>
-
-        <a href="/instituteAdmin/subjects" class="nav-item">
-            <i class="bi bi-book"></i>
-            <span>Subjects</span>
-        </a>
-
-        <div class="sidebar-section-label mt-4">ACCOUNT</div>
-
-        <a href="#" id="profileLink" class="nav-item">
-            <i class="bi bi-person-circle"></i>
-            <span>Profile</span>
-        </a>
-
-    </nav>
-
-    <div class="sidebar-footer">
-
-        <div class="sidebar-user">
-
-            <div class="sidebar-user-avatar" id="sidebarInitials">
-                IA
-            </div>
-
-            <div class="sidebar-user-info">
-
-                <div class="sidebar-user-name" id="sidebarUserName">
-                    Institute Admin
-                </div>
-
-                <div class="sidebar-user-role">
-                    Institute Administrator
-                </div>
-
-            </div>
-
-            <button type="button" class="sidebar-logout" title="Logout">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-
-        </div>
-
-    </div>
-
-@endsection
 
 
 @section('content')
 
-    {{-- Dashboard Header --}}
-
-    <div class="dashboard-header-row">
-
+    {{-- Greeting --}}
+    <div class="dash-head">
         <div>
-
-            <h2 class="dashboard-welcome">
-                Welcome back, <span id="welcomeName">Institute Admin</span>
-            </h2>
-
-            <p class="dashboard-subtitle">
-                Here's an overview of your institute.
-            </p>
-
+            <h2 class="dash-welcome"><span id="greeting">Welcome back</span><span id="welcomeName"></span></h2>
+            <p class="dash-sub">Here's what is happening in your institute today.</p>
         </div>
 
-        <div class="dashboard-date">
+        <div class="dash-date">
             <i class="bi bi-calendar3"></i>
             <span id="currentDate"></span>
         </div>
-
     </div>
 
+    {{-- Institute banner --}}
+    <section class="hero" id="hero">
+        <div class="hero-logo" id="instituteLogo"><i class="bi bi-building"></i></div>
 
-    {{-- Statistics --}}
+        <div class="hero-main">
+            <div class="hero-title">
+                <h3 id="instituteName">Loading institute...</h3>
+                <span class="hero-status" id="instituteStatus"><i></i><b>Active</b></span>
+            </div>
+
+            <div class="hero-chips">
+                <span class="hero-chip"><i class="bi bi-envelope"></i><span id="instituteEmail">—</span></span>
+                <span class="hero-chip"><i class="bi bi-telephone"></i><span id="instituteContact">—</span></span>
+                <span class="hero-chip"><i class="bi bi-geo-alt"></i><span id="instituteAddress">—</span></span>
+            </div>
+        </div>
+    </section>
+
+    {{-- Key numbers --}}
+    <div class="stat-grid" id="statGrid">
+
+        <a href="/instituteAdmin/classes" class="stat-card">
+            <div class="stat-icon"><i class="bi bi-building"></i></div>
+            <div class="stat-body">
+                <span class="stat-label">Classes</span>
+                <div class="stat-value" id="totalClasses">0</div>
+                <span class="stat-link">Manage classes <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="/instituteAdmin/students" class="stat-card">
+            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-body">
+                <span class="stat-label">Students</span>
+                <div class="stat-value" id="totalStudents">0</div>
+                <span class="stat-link">Manage students <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="/instituteAdmin/teachers" class="stat-card">
+            <div class="stat-icon"><i class="bi bi-person-workspace"></i></div>
+            <div class="stat-body">
+                <span class="stat-label">Teachers</span>
+                <div class="stat-value" id="totalTeachers">0</div>
+                <span class="stat-link">Manage teachers <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="/instituteAdmin/subjects" class="stat-card">
+            <div class="stat-icon"><i class="bi bi-book"></i></div>
+            <div class="stat-body">
+                <span class="stat-label">Subjects</span>
+                <div class="stat-value" id="totalSubjects">0</div>
+                <span class="stat-link">Manage subjects <i class="bi bi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        {{-- Shown only when the API sends quizzes_count / quiz_attempts_count --}}
+        <div class="stat-card" id="quizCard" hidden>
+            <div class="stat-icon accent"><i class="bi bi-patch-question-fill"></i></div>
+            <div class="stat-body">
+                <span class="stat-label">Quizzes</span>
+                <div class="stat-value" id="totalQuizzes">0</div>
+                <span class="stat-link plain">Created in your institute</span>
+            </div>
+        </div>
+
+        <div class="stat-card" id="attemptCard" hidden>
+            <div class="stat-icon accent"><i class="bi bi-journal-check"></i></div>
+            <div class="stat-body">
+                <span class="stat-label">Quiz attempts</span>
+                <div class="stat-value" id="totalAttempts">0</div>
+                <span class="stat-link plain">By your students</span>
+            </div>
+        </div>
+
+    </div>
 
     <div class="row g-4 mb-4">
 
-        <div class="col-xl-3 col-md-6">
-
-            <div class="dashboard-stat-card">
-
-                <div class="stat-card-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-building"></i>
+        {{-- Classes overview --}}
+        <div class="col-xl-7">
+            <section class="panel h-100">
+                <header class="panel-head">
+                    <div>
+                        <h5>Classes overview</h5>
+                        <p>Students enrolled in each class</p>
                     </div>
+                    <a href="/instituteAdmin/classes" class="panel-link">Manage <i class="bi bi-arrow-right"></i></a>
+                </header>
 
-                    <span class="stat-label">
-                        Total Classes
-                    </span>
-
+                <div class="panel-body" id="classesList">
+                    <div class="skeleton" style="height:54px"></div>
+                    <div class="skeleton" style="height:54px"></div>
+                    <div class="skeleton" style="height:54px"></div>
                 </div>
-
-                <div class="stat-value" id="totalClasses">
-                    0
-                </div>
-
-                <div class="stat-footer">
-                    <span>Classes in your institute</span>
-                </div>
-
-            </div>
-
+            </section>
         </div>
 
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="dashboard-stat-card">
-
-                <div class="stat-card-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-people-fill"></i>
+        {{-- Subjects --}}
+        <div class="col-xl-5">
+            <section class="panel h-100">
+                <header class="panel-head">
+                    <div>
+                        <h5>Subjects</h5>
+                        <p>Available in your institute</p>
                     </div>
+                    <span class="count-pill" id="subjectCount">0</span>
+                </header>
 
-                    <span class="stat-label">
-                        Total Students
-                    </span>
-
+                <div class="panel-body" id="subjectsList">
+                    <div class="skeleton" style="height:34px"></div>
+                    <div class="skeleton" style="height:34px;width:70%"></div>
                 </div>
-
-                <div class="stat-value" id="totalStudents">
-                    0
-                </div>
-
-                <div class="stat-footer">
-                    <span>Registered students</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="dashboard-stat-card">
-
-                <div class="stat-card-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-person-workspace"></i>
-                    </div>
-
-                    <span class="stat-label">
-                        Total Teachers
-                    </span>
-
-                </div>
-
-                <div class="stat-value" id="totalTeachers">
-                    0
-                </div>
-
-                <div class="stat-footer">
-                    <span>Institute teachers</span>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="dashboard-stat-card">
-
-                <div class="stat-card-top">
-
-                    <div class="stat-icon">
-                        <i class="bi bi-book"></i>
-                    </div>
-
-                    <span class="stat-label">
-                        Total Subjects
-                    </span>
-
-                </div>
-
-                <div class="stat-value" id="totalSubjects">
-                    0
-                </div>
-
-                <div class="stat-footer">
-                    <span>Available subjects</span>
-                </div>
-
-            </div>
-
+            </section>
         </div>
 
     </div>
 
-
-    {{-- Institute Information --}}
-
-    <div class="dashboard-panel mb-4">
-
-        <div class="dashboard-panel-header">
-
+    {{-- Teaching staff --}}
+    <section class="panel mb-4">
+        <header class="panel-head">
             <div>
-
-                <h5>Institute Information</h5>
-
-                <p>
-                    Basic information about your institute
-                </p>
-
+                <h5>Teaching staff</h5>
+                <p>Teachers and the classes and subjects they teach</p>
             </div>
+            <a href="/instituteAdmin/teachers" class="panel-link">Manage <i class="bi bi-arrow-right"></i></a>
+        </header>
 
-            <span id="instituteStatus"
-                  class="status-badge status-active">
-                Active
-            </span>
-
+        <div class="panel-body">
+            <div class="staff-grid" id="teacherGrid">
+                <div class="skeleton" style="height:130px"></div>
+                <div class="skeleton" style="height:130px"></div>
+                <div class="skeleton" style="height:130px"></div>
+            </div>
         </div>
+    </section>
 
-
-        <div class="institute-info">
-
-            <div class="institute-logo-area">
-
-                <div id="instituteLogo"
-                     class="institute-logo">
-
-                    <i class="bi bi-building"></i>
-
-                </div>
-
-            </div>
-
-
-            <div class="institute-details">
-
-                <div class="info-item">
-
-                    <span class="info-label">
-                        Institute Name
-                    </span>
-
-                    <strong id="instituteName">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <span class="info-label">
-                        Email
-                    </span>
-
-                    <strong id="instituteEmail">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <span class="info-label">
-                        Contact
-                    </span>
-
-                    <strong id="instituteContact">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="info-item">
-
-                    <span class="info-label">
-                        Address
-                    </span>
-
-                    <strong id="instituteAddress">
-                        —
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- Classes & Subjects --}}
-
-    <div class="dashboard-panel mb-4">
-
-        <div class="dashboard-panel-header">
-
+    {{-- Students by class --}}
+    <section class="panel">
+        <header class="panel-head">
             <div>
-
-                <h5>Classes & Subjects</h5>
-
-                <p>
-                    Academic classes and subjects available in your institute
-                </p>
-
+                <h5>Students by class</h5>
+                <p>Open a class to see who is enrolled</p>
             </div>
+            <a href="/instituteAdmin/students" class="panel-link">All students <i class="bi bi-arrow-right"></i></a>
+        </header>
 
-        </div>
-
-
-        <div class="row g-0">
-
-            {{-- Classes --}}
-
-            <div class="col-xl-7">
-
-                <div class="section-inner">
-
-                    <div class="section-title">
-                        <i class="bi bi-building"></i>
-                        Classes
-                    </div>
-
-                    <div class="table-responsive">
-
-                        <table class="table dashboard-table align-middle mb-0">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>Class</th>
-                                    <th>Group</th>
-                                    <th>Students</th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="classesTable">
-
-                                <tr>
-
-                                    <td colspan="3"
-                                        class="text-center text-muted py-4">
-
-                                        Loading...
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
+        <div class="accordion accordion-flush" id="studentsByClass">
+            <div class="panel-body">
+                <div class="skeleton" style="height:48px"></div>
+                <div class="skeleton" style="height:48px"></div>
             </div>
-
-
-            {{-- Subjects --}}
-
-            <div class="col-xl-5">
-
-                <div class="section-inner subject-section">
-
-                    <div class="section-title">
-
-                        <i class="bi bi-book"></i>
-
-                        Subjects
-
-                        <span class="section-count"
-                              id="subjectCount">
-                            0
-                        </span>
-
-                    </div>
-
-
-                    <div id="subjectsList"
-                         class="subject-list">
-
-                        <div class="alert-empty">
-                            Loading...
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
         </div>
-
-    </div>
-
-
-    {{-- Teacher Assignments --}}
-
-    <div class="dashboard-panel mb-4">
-
-        <div class="dashboard-panel-header">
-
-            <div>
-
-                <h5>Teacher Assignments</h5>
-
-                <p>
-                    Teachers assigned to specific classes and subjects
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="table-responsive">
-
-            <table class="table dashboard-table align-middle mb-0">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Teacher</th>
-                        <th>Class</th>
-                        <th>Subject</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="teacherTable">
-
-                    <tr>
-
-                        <td colspan="3"
-                            class="text-center text-muted py-4">
-
-                            Loading...
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    {{-- Students by Class --}}
-
-    <div class="dashboard-panel mb-4">
-
-        <div class="dashboard-panel-header">
-
-            <div>
-
-                <h5>Students by Class</h5>
-
-                <p>
-                    Students currently enrolled in each class
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div id="studentsByClass">
-
-            <div class="alert-empty">
-                Loading...
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- Quick Actions --}}
-
-    <div class="dashboard-panel">
-
-        <div class="dashboard-panel-header">
-
-            <div>
-
-                <h5>Quick Actions</h5>
-
-                <p>
-                    Common institute administration tasks
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="quick-actions">
-
-            <a href="#" class="quick-action">
-
-                <div class="quick-action-icon">
-                    <i class="bi bi-building"></i>
-                </div>
-
-                <div class="quick-action-content">
-
-                    <strong>
-                        Manage Classes
-                    </strong>
-
-                    <span>
-                        Add, edit and organize institute classes
-                    </span>
-
-                </div>
-
-                <i class="bi bi-chevron-right quick-action-arrow"></i>
-
-            </a>
-
-
-            <a href="#" class="quick-action">
-
-                <div class="quick-action-icon">
-                    <i class="bi bi-person-workspace"></i>
-                </div>
-
-                <div class="quick-action-content">
-
-                    <strong>
-                        Manage Teachers
-                    </strong>
-
-                    <span>
-                        Manage teachers and class assignments
-                    </span>
-
-                </div>
-
-                <i class="bi bi-chevron-right quick-action-arrow"></i>
-
-            </a>
-
-
-            <a href="#" class="quick-action">
-
-                <div class="quick-action-icon">
-                    <i class="bi bi-book"></i>
-                </div>
-
-                <div class="quick-action-content">
-
-                    <strong>
-                        Manage Subjects
-                    </strong>
-
-                    <span>
-                        View and manage institute subjects
-                    </span>
-
-                </div>
-
-                <i class="bi bi-chevron-right quick-action-arrow"></i>
-
-            </a>
-
-        </div>
-
-    </div>
+    </section>
 
 @endsection
 
 
 @push('styles')
-
 <style>
-
-.dashboard-header-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 28px;
-}
-
-.dashboard-welcome {
-    margin: 0 0 5px;
-    font-size: 25px;
-    font-weight: 700;
-    color: var(--dark-text);
-    letter-spacing: -0.4px;
-}
-
-.dashboard-subtitle {
-    margin: 0;
-    color: var(--slate);
-    font-size: 14px;
-}
-
-.dashboard-date {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 13px;
-    border: 1px solid var(--slate-light);
-    border-radius: 8px;
-    background: var(--white);
-    color: var(--slate);
-    font-size: 13px;
-    white-space: nowrap;
-}
-
-.dashboard-stat-card {
-    background: var(--white);
-    border: 1px solid var(--slate-light);
-    border-radius: 12px;
-    padding: 20px;
-    height: 100%;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.dashboard-stat-card:hover {
-    border-color: var(--lime);
-    transform: translateY(-2px);
-}
-
-.stat-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.stat-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 9px;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-}
-
-.stat-label {
-    color: var(--slate);
-    font-size: 13px;
-    font-weight: 600;
-    text-align: right;
-}
-
-.stat-value {
-    margin-top: 18px;
-    font-size: 30px;
-    line-height: 1;
-    font-weight: 700;
-    color: var(--dark-text);
-}
-
-.stat-footer {
-    display: flex;
-    align-items: center;
-    margin-top: 13px;
-    color: var(--slate);
-    font-size: 12px;
-}
-
-.dashboard-panel {
-    background: var(--white);
-    border: 1px solid var(--slate-light);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.dashboard-panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 20px 22px;
-    border-bottom: 1px solid var(--slate-light);
-}
-
-.dashboard-panel-header h5 {
-    margin: 0 0 4px;
-    color: var(--dark-text);
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.dashboard-panel-header p {
-    margin: 0;
-    color: var(--slate);
-    font-size: 12px;
-}
-
-.dashboard-table {
-    --bs-table-bg: transparent;
-}
-
-.dashboard-table thead th {
-    background: var(--off-white);
-    color: var(--slate);
-    border-bottom: 1px solid var(--slate-light);
-    padding: 12px 20px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
-}
-
-.dashboard-table tbody td {
-    padding: 14px 20px;
-    border-bottom: 1px solid #f1f5f9;
-    color: var(--dark-text);
-    font-size: 13px;
-}
-
-.dashboard-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.institute-info {
-    display: flex;
-    gap: 25px;
-    padding: 24px;
-}
-
-.institute-logo-area {
-    flex: 0 0 auto;
-}
-
-.institute-logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 12px;
-    border: 1px solid var(--slate-light);
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    overflow: hidden;
-}
-
-.institute-logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.institute-details {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px 35px;
-}
-
-.info-label {
-    display: block;
-    color: var(--slate);
-    font-size: 11px;
-    margin-bottom: 4px;
-}
-
-.info-item strong {
-    color: var(--dark-text);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 9px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.status-active {
-    background: var(--lime-light);
-    color: var(--lime-dark);
-}
-
-.status-warning {
-    background: #fef3c7;
-    color: #b45309;
-}
-
-.status-danger {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
-.section-inner {
-    height: 100%;
-}
-
-.subject-section {
-    border-left: 1px solid var(--slate-light);
-}
-
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 16px 20px;
-    color: var(--dark-text);
-    font-size: 13px;
-    font-weight: 700;
-    border-bottom: 1px solid var(--slate-light);
-}
-
-.section-title i {
-    color: var(--lime-dark);
-}
-
-.section-count {
-    margin-left: auto;
-    min-width: 25px;
-    padding: 3px 7px;
-    border-radius: 5px;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    font-size: 11px;
-    text-align: center;
-}
-
-.subject-list {
-    padding: 12px 16px;
-    max-height: 270px;
-    overflow-y: auto;
-}
-
-.subject-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 8px;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.subject-item:last-child {
-    border-bottom: 0;
-}
-
-.subject-number {
-    width: 28px;
-    height: 28px;
-    flex: 0 0 28px;
-    border-radius: 7px;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.subject-name {
-    color: var(--dark-text);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.teacher-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.teacher-avatar {
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    border-radius: 50%;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    overflow: hidden;
-}
-
-.teacher-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.teacher-name {
-    font-weight: 600;
-    color: var(--dark-text);
-}
-
-.teacher-email {
-    display: block;
-    margin-top: 2px;
-    color: var(--slate);
-    font-size: 11px;
-}
-
-.assignment-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 8px;
-    border-radius: 6px;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.student-class-section {
-    border-bottom: 1px solid var(--slate-light);
-}
-
-.student-class-section:last-child {
-    border-bottom: 0;
-}
-
-.student-class-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 22px;
-    background: var(--off-white);
-}
-
-.student-class-name {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    color: var(--dark-text);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.student-class-name i {
-    color: var(--lime-dark);
-}
-
-.student-class-group {
-    color: var(--slate);
-    font-size: 11px;
-    text-transform: capitalize;
-}
-
-.student-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0;
-}
-
-.student-item {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 13px 22px;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.student-avatar {
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    border-radius: 50%;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    overflow: hidden;
-}
-
-.student-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.student-info strong {
-    display: block;
-    color: var(--dark-text);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.student-info span {
-    display: block;
-    color: var(--slate);
-    font-size: 11px;
-    margin-top: 2px;
-}
-
-.no-students {
-    padding: 15px 22px;
-    color: var(--slate);
-    font-size: 12px;
-}
-
-.quick-actions {
-    padding: 7px 12px 12px;
-}
-
-.quick-action {
-    width: 100%;
-    border: 0;
-    border-bottom: 1px solid #f1f5f9;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: left;
-    padding: 14px 10px;
-    transition: background 0.2s ease;
-    color: inherit;
-    text-decoration: none;
-}
-
-.quick-action:last-child {
-    border-bottom: 0;
-}
-
-.quick-action:hover {
-    background: var(--off-white);
-}
-
-.quick-action-icon {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    border-radius: 8px;
-    background: var(--lime-light);
-    color: var(--lime-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-}
-
-.quick-action-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.quick-action-content strong {
-    display: block;
-    color: var(--dark-text);
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 2px;
-}
-
-.quick-action-content span {
-    display: block;
-    color: var(--slate);
-    font-size: 11px;
-}
-
-.quick-action-arrow {
-    color: var(--slate);
-    font-size: 13px;
-}
-
-.alert-empty {
-    padding: 30px;
-    text-align: center;
-    color: var(--slate);
-    font-size: 13px;
-}
-
-@media (max-width: 767.98px) {
-
-    .dashboard-header-row {
-        flex-direction: column;
+    /* ---------- Greeting ---------- */
+    .dash-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 22px;
     }
 
-    .dashboard-date {
-        width: 100%;
+    .dash-welcome { margin: 0 0 5px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+    .dash-sub { margin: 0; color: var(--slate); font-size: 14px; }
+
+    .dash-date {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border: 1px solid var(--slate-light);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--slate);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    /* ---------- Institute banner (uses the institute's own colors) ---------- */
+    .hero {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 24px 26px;
+        margin-bottom: 22px;
+        border-radius: 16px;
+        overflow: hidden;
+        color: var(--on-primary);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        box-shadow: var(--shadow-md);
+    }
+
+    .hero::before,
+    .hero::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.14);
+        pointer-events: none;
+    }
+    .hero::before { width: 260px; height: 260px; right: -70px; top: -120px; }
+    .hero::after  { width: 170px; height: 170px; right: 150px; bottom: -110px; }
+
+    .hero-logo {
+        position: relative;
+        z-index: 1;
+        width: 84px;
+        height: 84px;
+        flex: 0 0 84px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.35);
+    }
+    .hero-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hero-main { position: relative; z-index: 1; min-width: 0; }
+
+    .hero-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .hero-title h3 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; overflow-wrap: anywhere; }
+
+    .hero-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 11px;
+        border-radius: 999px;
+        background: var(--white);
+        color: var(--navy);
+        font-size: 12px;
+        text-transform: capitalize;
+    }
+    .hero-status b { font-weight: 700; }
+    .hero-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+    .hero-status.warning i { background: var(--warning); }
+    .hero-status.danger i { background: var(--danger); }
+
+    .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        font-size: 13px;
+        font-weight: 500;
+        max-width: 100%;
+    }
+    .hero-chip > span { overflow-wrap: anywhere; }
+
+    /* ---------- Stat cards ---------- */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+        background: var(--white);
+        border: 1px solid var(--slate-light);
+        border-radius: 14px;
+        box-shadow: var(--shadow-sm);
+        color: inherit;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .stat-card[hidden] { display: none; }
+    a.stat-card:hover { border-color: var(--primary-color); box-shadow: var(--shadow-md); transform: translateY(-2px); color: inherit; }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        border-radius: 12px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+    }
+    .stat-icon.accent {
+        background: color-mix(in srgb, var(--accent-color) 16%, white);
+        color: var(--accent-color);
+    }
+
+    .stat-label { display: block; color: var(--slate); font-size: 13px; font-weight: 600; }
+    .stat-value { margin-top: 6px; font-size: 32px; line-height: 1; font-weight: 700; color: var(--text-color); font-variant-numeric: tabular-nums; }
+    .stat-link { display: inline-block; margin-top: 10px; color: var(--primary-dark); font-size: 12px; font-weight: 700; }
+    .stat-link.plain { color: var(--slate); font-weight: 500; }
+
+    /* ---------- Panels ---------- */
+    .panel {
+        background: var(--white);
+        border: 1px solid var(--slate-light);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--slate-light);
+    }
+    .panel-head h5 { margin: 0 0 3px; font-size: 16px; font-weight: 700; color: var(--text-color); }
+    .panel-head p { margin: 0; color: var(--slate); font-size: 12px; }
+
+    .panel-link { display: inline-flex; align-items: center; gap: 6px; color: var(--primary-dark); font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .panel-link:hover { color: var(--secondary-color); }
+
+    .panel-body { padding: 18px 22px; }
+
+    .count-pill {
+        min-width: 30px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    /* ---------- Classes overview ---------- */
+    .class-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+    .class-row:first-child { padding-top: 0; }
+    .class-row:last-child { border-bottom: 0; padding-bottom: 0; }
+
+    .class-ico {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
         justify-content: center;
     }
 
-    .institute-info {
-        flex-direction: column;
+    .class-info { flex: 0 0 150px; min-width: 0; }
+    .class-info strong { display: block; font-size: 14px; font-weight: 600; color: var(--text-color); overflow-wrap: anywhere; }
+    .class-info small { color: var(--slate); font-size: 12px; text-transform: capitalize; }
+
+    .bar { flex: 1; height: 8px; border-radius: 999px; background: #eef2f7; overflow: hidden; min-width: 60px; }
+    .bar span { display: block; height: 100%; border-radius: 999px; background: var(--primary-color); transition: width 0.6s ease; }
+
+    .class-count { flex: 0 0 auto; min-width: 84px; text-align: right; color: var(--slate); font-size: 12px; font-weight: 600; }
+    .class-count b { color: var(--text-color); font-size: 15px; }
+
+    /* ---------- Subjects ---------- */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 280px; overflow-y: auto; }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-size: 13px;
+        font-weight: 600;
     }
 
-    .institute-details {
-        grid-template-columns: 1fr;
+    .chip.small { padding: 4px 10px; font-size: 12px; border-radius: 999px; }
+    .chip.alt { background: color-mix(in srgb, var(--secondary-color) 12%, white); color: var(--secondary-color); }
+
+    /* ---------- Teaching staff ---------- */
+    .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+
+    .staff-card {
+        padding: 16px;
+        border: 1px solid var(--slate-light);
+        border-radius: 12px;
+        background: #fcfdfb;
+        transition: border-color 0.2s ease;
     }
+    .staff-card:hover { border-color: var(--primary-color); }
 
-    .subject-section {
-        border-left: 0;
-        border-top: 1px solid var(--slate-light);
+    .person { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .person > div { min-width: 0; }
+    .person strong { display: block; font-size: 14px; font-weight: 600; color: var(--text-color); overflow-wrap: anywhere; }
+    .person small { display: block; color: var(--slate); font-size: 12px; overflow-wrap: anywhere; }
+
+    .avatar {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        overflow: hidden;
     }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    .student-list {
-        grid-template-columns: 1fr;
+    .staff-block { margin-top: 12px; }
+    .staff-block > span { display: block; margin-bottom: 6px; color: var(--slate); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+    .staff-block .chips { max-height: none; gap: 6px; }
+    .muted { color: var(--slate); font-size: 12px; }
+
+    /* ---------- Students by class ---------- */
+    .accordion { --bs-accordion-bg: transparent; --bs-accordion-border-color: var(--slate-light); }
+
+    .accordion-button {
+        gap: 12px;
+        padding: 14px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-color);
+        background: transparent;
+        box-shadow: none;
     }
+    .accordion-button:not(.collapsed) { background: var(--primary-light); color: var(--text-color); box-shadow: none; }
+    .accordion-button:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 22%, transparent); }
 
-}
+    .acc-meta { margin-left: auto; margin-right: 10px; display: flex; align-items: center; gap: 10px; }
+    .acc-meta small { color: var(--slate); text-transform: capitalize; font-weight: 500; }
 
+    .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 16px 22px 20px; }
+    .student-tile { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #eef2f7; border-radius: 10px; }
+    .student-more { padding: 0 22px 18px; font-size: 13px; }
+
+    /* ---------- Empty / error / loading ---------- */
+    .empty { padding: 26px 10px; text-align: center; color: var(--slate); font-size: 13px; }
+    .empty i { display: block; margin-bottom: 8px; font-size: 28px; color: var(--primary-dark); }
+    .empty a { font-weight: 700; }
+    .empty.error i { color: var(--danger); }
+
+    .skeleton {
+        height: 14px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        background: linear-gradient(90deg, #eef2f7 25%, #f8fafc 50%, #eef2f7 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite linear;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 767.98px) {
+        .dash-head { flex-direction: column; }
+        .dash-date { width: 100%; justify-content: center; }
+        .dash-welcome { font-size: 22px; }
+        .hero { flex-direction: column; align-items: flex-start; padding: 20px; }
+        .class-row { flex-wrap: wrap; }
+        .class-info { flex: 1; }
+        .bar { order: 3; flex-basis: 100%; }
+    }
 </style>
-
 @endpush
 
 
 @push('scripts')
-
 <script>
+    // ---------- Header ----------
+    document.getElementById('currentDate').textContent =
+        new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 
-document.getElementById('currentDate').textContent =
-    new Date().toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-    });
+    (function () {
+        const hour = new Date().getHours();
+        document.getElementById('greeting').textContent =
+            hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    })();
 
-
-function esc(text) {
-    return $('<div>').text(text ?? '').html();
-}
-
-
-function initials(name) {
-
-    return (name || '?')
-        .split(' ')
-        .map(w => w[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
-
-}
-
-
-function statusClass(status) {
-
-    if (status === 'active') {
-        return 'status-active';
+    // Add the admin's first name once the layout has loaded the profile
+    function showWelcomeName(user) {
+        if (user && user.name) {
+            $('#welcomeName').text(', ' + user.name.split(' ')[0]);
+        }
     }
 
-    if (status === 'suspended') {
-        return 'status-warning';
+    if (window.currentUser) showWelcomeName(window.currentUser);
+    $(document).on('user:loaded', (event, user) => showWelcomeName(user));
+
+    // ---------- Helpers ----------
+    function esc(text) {
+        return $('<div>').text(text ?? '').html();
     }
 
-    return 'status-danger';
+    function initials(name) {
+        return (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
 
-}
+    function avatar(person) {
+        const inner = person.profile_image
+            ? `<img src="/storage/${esc(person.profile_image)}" alt="">`
+            : esc(initials(person.name));
 
+        return `<div class="avatar">${inner}</div>`;
+    }
 
-$.ajax({
+    function emptyBox(icon, message, link) {
+        return `<div class="empty"><i class="bi ${icon}"></i>${message}${link ? ' ' + link : ''}</div>`;
+    }
 
-    url: '/api/instituteAdmin/dashboard',
+    function countUp(selector, target) {
+        const el = document.querySelector(selector);
+        if (!el) return;
 
-    type: 'GET',
+        target = Number(target) || 0;
 
-    headers: {
-        'Authorization': 'Bearer ' + token
-    },
-
-    success: function(response) {
-
-        console.log(response);
-
-        const data = response.data || {};
-
-        const institute = data.institute || {};
-
-        const classes =
-            data["Classes with students"] || [];
-
-        const teachers =
-            data["teacher assigned to classes and subjects"] || [];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics
-        |--------------------------------------------------------------------------
-        */
-
-        $('#totalClasses')
-            .text(classes.length);
-
-        $('#totalStudents')
-            .text(data.students_count ?? 0);
-
-        $('#totalTeachers')
-            .text(data.teachers_count ?? 0);
-
-        $('#totalSubjects')
-            .text(data.total_subjects.length?? 0);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Institute Information
-        |--------------------------------------------------------------------------
-        */
-
-        $('#instituteName')
-            .text(institute.name || '—');
-
-        $('#instituteEmail')
-            .text(institute.email || '—');
-
-        $('#instituteContact')
-            .text(institute.Contact || '—');
-
-        $('#instituteAddress')
-            .text(institute.address || '—');
-
-
-        if (institute.name) {
-
-            $('#welcomeName')
-                .text(institute.name);
-
-            $('#sidebarUserName')
-                .text('Institute Admin');
-
-            $('#sidebarInitials')
-                .text(initials(institute.name));
-
+        if (!target || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            el.textContent = target;
+            return;
         }
 
+        const start = performance.now(), duration = 600;
 
-        if (institute.status) {
+        (function tick(now) {
+            const p = Math.min((now - start) / duration, 1);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(tick);
+        })(start);
+    }
 
-            $('#instituteStatus')
-                .text(institute.status)
-                .removeClass(
-                    'status-active status-warning status-danger'
-                )
-                .addClass(
-                    statusClass(institute.status)
-                );
+    function uniqueBy(list, key) {
+        const seen = new Map();
+        (list || []).forEach(item => { if (item && !seen.has(item[key])) seen.set(item[key], item); });
+        return [...seen.values()];
+    }
 
-        }
-
+    // ---------- Renderers ----------
+    function renderInstitute(institute) {
+        $('#instituteName').text(institute.name || 'Your institute');
+        $('#instituteEmail').text(institute.email || '—');
+        $('#instituteContact').text(institute.Contact || '—');
+        $('#instituteAddress').text(institute.address || '—');
 
         if (institute.logo) {
-
-            $('#instituteLogo').html(
-                `<img src="/storage/${institute.logo}" alt="Institute Logo">`
-            );
-
+            $('#instituteLogo').html(`<img src="/storage/${esc(institute.logo)}" alt="Institute logo">`);
         }
 
+        if (institute.status) {
+            const kind = institute.status === 'active' ? '' : institute.status === 'suspended' ? 'warning' : 'danger';
 
-        /*
-        |--------------------------------------------------------------------------
-        | Classes
-        |--------------------------------------------------------------------------
-        */
-
-        let classRows = '';
-
-        if (classes.length) {
-
-            classes.forEach(function(item) {
-
-                const studentCount =
-                    Array.isArray(item.students)
-                        ? item.students.length
-                        : 0;
-
-
-                classRows += `
-
-                    <tr>
-
-                        <td>
-                            <strong>
-                                ${esc(item.class_name)}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${esc(item.group || '—')}
-                        </td>
-
-                        <td>
-                            <span class="assignment-badge">
-                                ${studentCount}
-                                ${studentCount === 1 ? 'Student' : 'Students'}
-                            </span>
-                        </td>
-
-                    </tr>
-
-                `;
-
-            });
-
-        } else {
-
-            classRows = `
-
-                <tr>
-
-                    <td colspan="3"
-                        class="text-center text-muted py-4">
-
-                        No classes found.
-
-                    </td>
-
-                </tr>
-
-            `;
-
+            $('#instituteStatus')
+                .attr('class', 'hero-status ' + kind)
+                .find('b').text(institute.status);
         }
-
-
-        $('#classesTable')
-            .html(classRows);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Subjects
-        |--------------------------------------------------------------------------
-        |
-        | Subjects are collected from the teachers' teaching_subjects
-        | relationship. This avoids inventing subject data that is not
-        | present in the API response.
-        |
-        */
-
-        const subjectMap = {};
-
-
-        teachers.forEach(function(teacher) {
-
-            const teachingSubjects =
-                Array.isArray(teacher.teaching_subjects)
-                    ? teacher.teaching_subjects
-                    : [];
-
-
-            teachingSubjects.forEach(function(subject) {
-
-                if (subject && subject.id) {
-
-                    subjectMap[subject.id] = subject;
-
-                }
-
-            });
-
-        });
-
-
-        const subjects =
-            Object.values(subjectMap);
-
-           
-        $('#subjectCount')
-            .text(data.total_subjects.length ?? subjects.length);
-
-
-        let subjectHtml = '';
-
-            //  console.log(subjects);
-        if (data.total_subjects.length) {
-            const  subjects = data.total_subjects;
-            subjects.forEach(function(subject, index) {
-
-                subjectHtml += `
-
-                    <div class="subject-item">
-
-                        <div class="subject-number">
-                            ${index + 1}
-                        </div>
-
-                        <div class="subject-name">
-                            ${esc(subject.name)}
-                        </div>
-
-                    </div>
-
-                `;
-
-            });
-
-        } else {
-
-            subjectHtml = `
-
-                <div class="alert-empty">
-                    No subject assignment data available.
-                </div>
-
-            `;
-
-        }
-
-
-        $('#subjectsList')
-            .html(subjectHtml);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Teacher Assignments
-        |--------------------------------------------------------------------------
-        */
-
-        let teacherRows = '';
-
-
-        if (teachers.length) {
-
-            teachers.forEach(function(teacher) {
-
-                const teachingClasses =
-                    Array.isArray(teacher.teaching_classes)
-                        ? teacher.teaching_classes
-                        : [];
-
-
-                const teachingSubjects =
-                    Array.isArray(teacher.teaching_subjects)
-                        ? teacher.teaching_subjects
-                        : [];
-
-
-                const maxRows = Math.max(
-                    teachingClasses.length,
-                    teachingSubjects.length,
-                    1
-                );
-
-
-                for (let i = 0; i < maxRows; i++) {
-
-                    const className =
-                        teachingClasses[i]?.class_name || '—';
-
-
-                    const subjectName =
-                        teachingSubjects[i]?.name || '—';
-
-
-                    const avatar =
-                        teacher.profile_image
-                            ? `<img src="/storage/${teacher.profile_image}" alt="">`
-                            : initials(teacher.name);
-
-
-                    teacherRows += `
-
-                        <tr>
-
-                            <td>
-
-                                <div class="teacher-name-cell">
-
-                                    <div class="teacher-avatar">
-                                        ${avatar}
-                                    </div>
-
-                                    <div>
-
-                                        <div class="teacher-name">
-                                            ${esc(teacher.name)}
-                                        </div>
-
-                                        <span class="teacher-email">
-                                            ${esc(teacher.email)}
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="assignment-badge">
-                                    ${esc(className)}
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="assignment-badge">
-                                    ${esc(subjectName)}
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-            });
-
-        } else {
-
-            teacherRows = `
-
-                <tr>
-
-                    <td colspan="3"
-                        class="text-center text-muted py-4">
-
-                        No teacher assignments found.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
-
-        $('#teacherTable')
-            .html(teacherRows);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Students By Class
-        |--------------------------------------------------------------------------
-        */
-
-        let studentsHtml = '';
-
-
-        if (classes.length) {
-
-            classes.forEach(function(item) {
-
-                const students =
-                    Array.isArray(item.students)
-                        ? item.students
-                        : [];
-
-
-                studentsHtml += `
-
-                    <div class="student-class-section">
-
-                        <div class="student-class-header">
-
-                            <div class="student-class-name">
-
-                                <i class="bi bi-building"></i>
-
-                                ${esc(item.class_name)}
-
-                            </div>
-
-                            <span class="student-class-group">
-
-                                ${esc(item.group || '')}
-
-                            </span>
-
-                        </div>
-
-                `;
-
-
-                if (students.length) {
-
-                    studentsHtml += `
-                        <div class="student-list">
-                    `;
-
-
-                    students.forEach(function(student) {
-
-                        const avatar =
-                            student.profile_image
-                                ? `<img src="/storage/${student.profile_image}" alt="">`
-                                : initials(student.name);
-
-
-                        studentsHtml += `
-
-                            <div class="student-item">
-
-                                <div class="student-avatar">
-                                    ${avatar}
-                                </div>
-
-                                <div class="student-info">
-
-                                    <strong>
-                                        ${esc(student.name)}
-                                    </strong>
-
-                                    <span>
-                                        ${esc(student.email || 'Student')}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    });
-
-
-                    studentsHtml += `
-                        </div>
-                    `;
-
-                } else {
-
-                    studentsHtml += `
-
-                        <div class="no-students">
-                            No students enrolled in this class.
-                        </div>
-
-                    `;
-
-                }
-
-
-                studentsHtml += `
-                    </div>
-                `;
-
-            });
-
-        } else {
-
-            studentsHtml = `
-
-                <div class="alert-empty">
-                    No classes found.
-                </div>
-
-            `;
-
-        }
-
-
-        $('#studentsByClass')
-            .html(studentsHtml);
-
-    },
-
-
-    error: function(xhr) {
-
-        console.log(
-            'Dashboard error:',
-            xhr
-        );
-
-
-        $('#classesTable').html(`
-
-            <tr>
-
-                <td colspan="3"
-                    class="text-center text-danger py-4">
-
-                    Could not load dashboard data.
-
-                </td>
-
-            </tr>
-
-        `);
-
-
-        $('#teacherTable').html(`
-
-            <tr>
-
-                <td colspan="3"
-                    class="text-center text-danger py-4">
-
-                    Could not load dashboard data.
-
-                </td>
-
-            </tr>
-
-        `);
-
-
-        $('#subjectsList').html(`
-
-            <div class="alert-empty text-danger">
-
-                Could not load dashboard data.
-
-            </div>
-
-        `);
-
-
-        $('#studentsByClass').html(`
-
-            <div class="alert-empty text-danger">
-
-                Could not load dashboard data.
-
-            </div>
-
-        `);
-
     }
 
-});
+    function renderClasses(classes, totalStudents) {
+        if (!classes.length) {
+            $('#classesList').html(emptyBox('bi-building-add', 'No classes yet.', '<a href="/instituteAdmin/classes">Add your first class</a>'));
+            return;
+        }
 
+        const max = Math.max(...classes.map(c => (c.students || []).length), 1);
+
+        $('#classesList').html(classes.map(function (item) {
+            const count = (item.students || []).length;
+            const width = Math.round((count / max) * 100);
+
+            return `
+                <div class="class-row">
+                    <div class="class-ico"><i class="bi bi-building"></i></div>
+                    <div class="class-info">
+                        <strong>${esc(item.class_name)}</strong>
+                        <small>${esc(item.group || 'No group')}</small>
+                    </div>
+                    <div class="bar" title="${count} of ${totalStudents} students"><span style="width:${width}%"></span></div>
+                    <div class="class-count"><b>${count}</b> ${count === 1 ? 'student' : 'students'}</div>
+                </div>`;
+        }).join(''));
+    }
+
+    function renderSubjects(subjects) {
+        $('#subjectCount').text(subjects.length);
+
+        if (!subjects.length) {
+            $('#subjectsList').html(emptyBox('bi-book', 'No subjects yet.', '<a href="/instituteAdmin/subjects">Add a subject</a>'));
+            return;
+        }
+
+        $('#subjectsList').html(
+            '<div class="chips">' +
+            subjects.map(s => `<span class="chip"><i class="bi bi-journal-text"></i>${esc(s.name)}</span>`).join('') +
+            '</div>'
+        );
+    }
+
+    function renderTeachers(teachers) {
+        if (!teachers.length) {
+            $('#teacherGrid').html(emptyBox('bi-person-workspace', 'No teachers yet.', '<a href="/instituteAdmin/teachers">Add a teacher</a>'));
+            return;
+        }
+
+        $('#teacherGrid').html(teachers.map(function (teacher) {
+            const classes  = uniqueBy(teacher.teaching_classes, 'id');
+            const subjects = uniqueBy(teacher.teaching_subjects, 'id');
+
+            const classChips = classes.length
+                ? classes.map(c => `<span class="chip small">${esc(c.class_name)}</span>`).join('')
+                : '<span class="muted">Not assigned yet</span>';
+
+            const subjectChips = subjects.length
+                ? subjects.map(s => `<span class="chip small alt">${esc(s.name)}</span>`).join('')
+                : '<span class="muted">Not assigned yet</span>';
+
+            return `
+                <div class="staff-card">
+                    <div class="person">
+                        ${avatar(teacher)}
+                        <div>
+                            <strong>${esc(teacher.name)}</strong>
+                            <small>${esc(teacher.email)}</small>
+                        </div>
+                    </div>
+
+                    <div class="staff-block">
+                        <span>Classes</span>
+                        <div class="chips">${classChips}</div>
+                    </div>
+
+                    <div class="staff-block">
+                        <span>Subjects</span>
+                        <div class="chips">${subjectChips}</div>
+                    </div>
+                </div>`;
+        }).join(''));
+    }
+
+    function renderStudentsByClass(classes) {
+        if (!classes.length) {
+            $('#studentsByClass').html('<div class="panel-body">' + emptyBox('bi-people', 'No classes found.') + '</div>');
+            return;
+        }
+
+        const LIMIT = 12;
+
+        $('#studentsByClass').html(classes.map(function (item, index) {
+            const students = item.students || [];
+            const id = 'classPane' + index;
+
+            const body = students.length
+                ? `<div class="student-grid">
+                        ${students.slice(0, LIMIT).map(s => `
+                            <div class="student-tile">
+                                <div class="person">
+                                    ${avatar(s)}
+                                    <div>
+                                        <strong>${esc(s.name)}</strong>
+                                        <small>${esc(s.student_roll_no ? 'Roll ' + s.student_roll_no : (s.email || 'Student'))}</small>
+                                    </div>
+                                </div>
+                            </div>`).join('')}
+                   </div>
+                   ${students.length > LIMIT
+                        ? `<div class="student-more">and ${students.length - LIMIT} more · <a href="/instituteAdmin/students">View all students</a></div>`
+                        : ''}`
+                : '<div class="panel-body">' + emptyBox('bi-person-plus', 'No students in this class yet.') + '</div>';
+
+            return `
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button ${index ? 'collapsed' : ''}" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#${id}">
+                            <i class="bi bi-building"></i>
+                            ${esc(item.class_name)}
+                            <span class="acc-meta">
+                                <small>${esc(item.group || '')}</small>
+                                <span class="count-pill">${students.length}</span>
+                            </span>
+                        </button>
+                    </h2>
+                    <div id="${id}" class="accordion-collapse collapse ${index ? '' : 'show'}">
+                        ${body}
+                    </div>
+                </div>`;
+        }).join(''));
+    }
+
+
+    function showError() {
+        const box = emptyBox('bi-exclamation-circle', "Couldn't load this section.", '<a href="#" onclick="location.reload();return false;">Try again</a>');
+
+        $('#classesList, #subjectsList, #teacherGrid').html(box);
+        $('#studentsByClass').html('<div class="panel-body">' + box + '</div>');
+        $('#instituteName').text('Could not load institute');
+        $('#statGrid .stat-value').text('—');
+    }
+
+    // ---------- Load data (shares the request the layout already made) ----------
+    window.instituteDashboard
+        .done(function (response) {
+            const data = response.data || {};
+            const classes  = data['Classes with students'] || [];
+            const teachers = data['teacher assigned to classes and subjects'] || [];
+            const subjects = data.total_subjects || [];
+
+            countUp('#totalClasses', classes.length);
+            countUp('#totalStudents', data.students_count ?? 0);
+            countUp('#totalTeachers', data.teachers_count ?? 0);
+            countUp('#totalSubjects', subjects.length);
+
+            // Quiz numbers appear automatically once the API sends them
+            if (data.quizzes_count !== undefined) {
+                $('#quizCard').prop('hidden', false);
+                countUp('#totalQuizzes', data.quizzes_count);
+            }
+
+            if (data.quiz_attempts_count !== undefined) {
+                $('#attemptCard').prop('hidden', false);
+                countUp('#totalAttempts', data.quiz_attempts_count);
+            }
+
+            renderInstitute(data.institute || {});
+            renderClasses(classes, data.students_count ?? 0);
+            renderSubjects(subjects);
+            renderTeachers(teachers);
+            renderStudentsByClass(classes);
+        })
+        .fail(function (xhr) {
+            console.log('Dashboard error:', xhr);
+            showError();
+        });
 </script>
-
 @endpush

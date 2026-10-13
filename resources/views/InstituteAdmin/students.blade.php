@@ -1,4 +1,3 @@
-
 @extends('layouts.institute')
 
 @section('title', 'Student Management')
@@ -6,36 +5,10 @@
 @section('page-title', 'Student Management')
 @section('page-description', 'Manage students enrolled in your institute')
 
-@section('sidebar')
-    <a href="/instituteAdmin/dashboard" class="nav-link">
-        <i class="bi bi-speedometer2"></i>
-        <span>Dashboard</span>
-    </a>
-
-    <a href="/instituteAdmin/classes" class="nav-link">
-        <i class="bi bi-building"></i>
-        <span>Class Management</span>
-    </a>
-
-    <a href="/instituteAdmin/subjects" class="nav-link">
-        <i class="bi bi-book"></i>
-        <span>Subject Management</span>
-    </a>
-
-    <a href="/instituteAdmin/teachers" class="nav-link">
-        <i class="bi bi-person-badge"></i>
-        <span>Teacher Management</span>
-    </a>
-
-    <a href="/instituteAdmin/students" class="nav-link active">
-        <i class="bi bi-people"></i>
-        <span>Student Management</span>
-    </a>
-@endsection
-
 @section('content')
 <div class="container-fluid px-0">
 
+    {{-- Page heading --}}
     <div class="page-head">
         <div>
             <h4 class="mb-1">Students</h4>
@@ -47,6 +20,7 @@
         </button>
     </div>
 
+    {{-- Stat cards --}}
     <div class="row g-3 mb-4">
         <div class="col-md-6">
             <div class="card border-0 shadow-sm h-100">
@@ -66,31 +40,18 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body d-flex align-items-center">
                     <div class="icon-box me-3">
-                        <i class="bi bi-person-check"></i>
+                        <i class="bi bi-person-plus"></i>
                     </div>
                     <div>
-                        <small class="text-muted">Active Students</small>
-                        <h4 class="mb-0" id="activeStudents">0</h4>
+                        <small class="text-muted">New This Month</small>
+                        <h4 class="mb-0" id="newThisMonth">0</h4>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="icon-box me-3">
-                        <i class="bi bi-person-x"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted">Inactive Students</small>
-                        <h4 class="mb-0" id="inactiveStudents">0</h4>
-                    </div> 
-                </div>
-            </div>
-        </div> -->
     </div>
 
+    {{-- Student list --}}
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 px-4 py-3">
             <div class="list-head">
@@ -106,7 +67,7 @@
                         <i class="bi bi-search"></i>
                     </span>
                     <input type="text" class="form-control" id="studentSearch"
-                           placeholder="Search students..." autocomplete="off">
+                           placeholder="Search name, email, roll no. or class" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -116,13 +77,13 @@
                 <table class="table table-hover align-middle mb-0 student-table">
                     <thead>
                         <tr>
-                            <th class="ps-4">#</th>
-                            <th>Student</th>
-                            <th>Roll Number</th>
-                            <th>Email</th>
-                            <th>Class</th>
-                            <th>Status</th>
-                            <th class="text-end pe-4">Actions</th>
+                            <th class="col-index ps-4">#</th>
+                            <th class="col-student">Student</th>
+                            <th class="col-roll">Roll Number</th>
+                            <th class="col-class">Class</th>
+                            <th class="col-quiz">Quizzes Attempted</th>
+                            <th class="col-joined">Joined</th>
+                            <th class="col-actions text-end pe-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="studentTableBody">
@@ -135,9 +96,12 @@
                 </table>
             </div>
         </div>
+
+        <div class="card-footer bg-white border-0 px-4 py-3 pager-bar" id="studentPager"></div>
     </div>
 </div>
 
+{{-- Add / Edit modal --}}
 <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -149,27 +113,27 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <form id="studentForm">
+            <form id="studentForm" novalidate>
                 <div class="modal-body">
                     <input type="hidden" id="studentId">
 
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label" for="studentName">Student Name</label>
-                            <input type="text" class="form-control" name="name"
-                                   id="studentName" required>
+                            <input type="text" class="form-control" name="name" id="studentName" required>
+                            <div class="field-error" data-error="name"></div>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label" for="studentEmail">Email Address</label>
-                            <input type="email" class="form-control" name="email"
-                                   id="studentEmail" required>
+                            <input type="email" class="form-control" name="email" id="studentEmail" required>
+                            <div class="field-error" data-error="email"></div>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label" for="studentRoll">Roll Number</label>
-                            <input type="text" class="form-control" name="student_roll_no"
-                                   id="studentRoll" required>
+                            <input type="text" class="form-control" name="student_roll_no" id="studentRoll" required>
+                            <div class="field-error" data-error="student_roll_no"></div>
                         </div>
 
                         <div class="col-md-6">
@@ -177,6 +141,7 @@
                             <select class="form-select" name="class_id" id="studentClass" required>
                                 <option value="">Select Class</option>
                             </select>
+                            <div class="field-error" data-error="class_id"></div>
                         </div>
 
                         <div class="col-md-6">
@@ -186,33 +151,41 @@
                             <small class="text-muted" id="passwordHint">
                                 Required when creating a student.
                             </small>
+                            <div class="field-error" data-error="password"></div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label" for="studentPasswordConfirmation">
-                                Confirm Password
-                            </label>
-                            <input type="password" class="form-control"
-                                   name="password_confirmation"
-                                   id="studentPasswordConfirmation"
-                                   autocomplete="new-password">
+                            <label class="form-label" for="studentPasswordConfirmation">Confirm Password</label>
+                            <input type="password" class="form-control" name="password_confirmation"
+                                   id="studentPasswordConfirmation" autocomplete="new-password">
+                            <div class="field-error" data-error="password_confirmation"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label" for="studentPhoto">Profile Photo</label>
+                            <div class="photo-row">
+                                <img id="studentPhotoPreview" class="photo-preview" alt="" style="display:none">
+                                <div class="flex-grow-1">
+                                    <input type="file" class="form-control" name="profile_image" id="studentPhoto"
+                                           accept=".jpg,.jpeg,.png,.webp">
+                                    <small class="text-muted">JPG, PNG or WebP, up to 2 MB.</small>
+                                    <div class="field-error" data-error="profile_image"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="saveStudentBtn">
-                        Save Student
-                    </button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveStudentBtn">Save Student</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+{{-- Delete confirmation modal --}}
 <div class="modal fade" id="deleteStudentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -222,15 +195,14 @@
                 </div>
                 <h5>Delete Student?</h5>
                 <p class="text-muted">
-                    Are you sure you want to delete this student?
+                    <strong id="deleteStudentName">This student</strong> will be removed permanently.
+                    This action cannot be undone.
                 </p>
                 <input type="hidden" id="deleteStudentId">
 
                 <div class="d-flex justify-content-center gap-2">
-                    <button type="button" class="btn btn-light"
-                            data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger"
-                            id="confirmDeleteStudent">Delete</button>
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteStudent">Delete</button>
                 </div>
             </div>
         </div>
@@ -248,9 +220,7 @@
         gap: 16px;
     }
 
-    .page-head {
-        margin-bottom: 24px;
-    }
+    .page-head { margin-bottom: 24px; }
 
     .icon-box {
         width: 45px;
@@ -265,22 +235,13 @@
         font-size: 20px;
     }
 
-    .search-box {
-        width: 280px;
-        max-width: 100%;
-    }
+    .search-box { width: 320px; max-width: 100%; }
+    .search-box .form-control { border-left: 0; }
+    .search-box .input-group-text { border-right: 0; }
 
-    .search-box .form-control {
-        border-left: 0;
-    }
-
-    .search-box .input-group-text {
-        border-right: 0;
-    }
-
-    .student-table {
-        min-width: 900px;
-    }
+    /* ---------- Table ---------- */
+    .student-table { min-width: 900px; transition: opacity .15s ease; }
+    .student-table.is-loading { opacity: .55; }
 
     .student-table thead th {
         background: #f8fafc;
@@ -294,9 +255,30 @@
 
     .student-table tbody td {
         font-size: 14px;
-        padding-top: 14px;
-        padding-bottom: 14px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        vertical-align: middle;
     }
+
+    .col-index   { width: 64px; }
+    .col-student { width: 30%; }
+    .col-roll    { width: 120px; }
+    .col-class   { width: 130px; }
+    .col-quiz    { width: 150px; }
+    .col-joined  { width: 130px; }
+    .col-actions { width: 190px; }
+
+    .student-table td.cell-nowrap { white-space: nowrap; }
+
+    .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .student-cell strong { display: block; overflow-wrap: anywhere; }
+    .student-cell small { display: block; color: #64748b; overflow-wrap: anywhere; }
 
     .student-avatar {
         width: 40px;
@@ -310,57 +292,62 @@
         justify-content: center;
         font-size: 13px;
         font-weight: 600;
+        object-fit: cover;
     }
 
-    .student-cell {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .student-cell strong {
-        overflow-wrap: anywhere;
-    }
-
-    .badge-active, .badge-inactive {
+    .class-tag,
+    .attempt-pill {
         display: inline-block;
-        padding: 5px 10px;
+        padding: 4px 10px;
         border-radius: 20px;
+        background: #ecfccb;
+        color: #4d7c0f;
         font-size: 12px;
-        text-transform: capitalize;
+        font-weight: 600;
+        white-space: nowrap;
     }
 
-    .badge-active {
-        background: #dcfce7;
-        color: #15803d;
-    }
+    .attempt-pill i { margin-right: 4px; }
 
-    .badge-inactive {
-        background: #f1f5f9;
-        color: #64748b;
-    }
-
-    .action-buttons {
-        display: inline-flex;
-        gap: 8px;
-    }
+    .action-buttons { display: inline-flex; gap: 8px; }
 
     .action-btn {
         border: 0;
         border-radius: 8px;
-        padding: 6px 10px;
+        padding: 6px 12px;
         font-size: 13px;
         font-weight: 600;
+        transition: filter .15s ease;
     }
 
-    .edit-btn {
-        background: #ecfccb;
-        color: #4d7c0f;
+    .action-btn:hover { filter: brightness(.95); }
+    .edit-btn { background: #ecfccb; color: #4d7c0f; }
+    .delete-btn { background: #fee2e2; color: #dc2626; }
+
+    /* ---------- Pagination ---------- */
+    .pager-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
-    .delete-btn {
-        background: #fee2e2;
-        color: #dc2626;
+    .pager-bar:empty { display: none; }
+
+    /* ---------- Modal form ---------- */
+    .field-error { color: #dc2626; font-size: 12px; margin-top: 4px; }
+    .field-error:empty { display: none; }
+
+    .photo-row { display: flex; align-items: center; gap: 14px; }
+
+    .photo-preview {
+        width: 64px;
+        height: 64px;
+        flex: 0 0 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
     }
 
     .delete-icon {
@@ -377,17 +364,10 @@
     }
 
     @media (max-width: 768px) {
-        .search-box {
-            width: 100%;
-        }
-
-        .list-head {
-            align-items: stretch;
-        }
-
-        .page-head .btn {
-            width: 100%;
-        }
+        .search-box { width: 100%; }
+        .list-head { align-items: stretch; }
+        .page-head .btn { width: 100%; }
+        .pager-bar { justify-content: center; }
     }
 </style>
 @endpush
@@ -395,8 +375,10 @@
 @push('scripts')
 <script>
     let allStudents = [];
-    let allClasses = [];
+    let currentPage = 1;
+    let searchTimer = null;
 
+    // ---------- Helpers ----------
     function escapeHtml(value) {
         return $('<div>').text(value ?? '').html();
     }
@@ -410,13 +392,15 @@
             .toUpperCase();
     }
 
+    function formatJoined(value) {
+        return value
+            ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : '—';
+    }
+
     function showStudentMessage(type, message) {
         if (typeof showResultModal === 'function') {
-            showResultModal(
-                type,
-                type === 'success' ? 'Success' : 'Request Failed',
-                message
-            );
+            showResultModal(type, type === 'success' ? 'Success' : 'Request Failed', message);
         } else {
             alert(message);
         }
@@ -441,6 +425,26 @@
         return [];
     }
 
+    function studentClassList(student) {
+        return student.student_classes || [];
+    }
+
+    function studentClassNames(student) {
+        return studentClassList(student).map(c => c.class_name).join(', ');
+    }
+
+    // Inline field errors
+    function clearFieldErrors() {
+        $('#studentForm .field-error').text('');
+        $('#studentForm .is-invalid').removeClass('is-invalid');
+    }
+
+    function setFieldError(field, message) {
+        $('#studentForm [data-error="' + field + '"]').text(message);
+        $('#studentForm [name="' + field + '"]').addClass('is-invalid');
+    }
+
+    // ---------- Classes ----------
     function loadClasses(selectedId = '') {
         $.ajax({
             url: '/api/classes',
@@ -450,14 +454,11 @@
                 'Accept': 'application/json'
             },
             success: function (response) {
-                allClasses = responseItems(response);
-
                 let options = '<option value="">Select Class</option>';
 
-                allClasses.forEach(function (item) {
-                    const id = item.id;
+                responseItems(response).forEach(function (item) {
                     const name = item.class_name || item.name || 'Class';
-                    options += `<option value="${id}">${escapeHtml(name)}</option>`;
+                    options += `<option value="${item.id}">${escapeHtml(name)}</option>`;
                 });
 
                 $('#studentClass').html(options);
@@ -467,30 +468,36 @@
                 }
             },
             error: function (xhr) {
-                showStudentMessage(
-                    'error',
-                    getStudentError(xhr, 'Unable to load classes.')
-                );
+                showStudentMessage('error', getStudentError(xhr, 'Unable to load classes.'));
             }
         });
     }
 
-    function loadStudents() {
-        $('#studentTableBody').html(`
-            <tr><td colspan="7" class="text-center py-5">Loading students...</td></tr>
-        `);
+    // ---------- Students list (server-side search + pagination) ----------
+    function loadStudents(page = 1) {
+        currentPage = page;
+        $('.student-table').addClass('is-loading');
 
         $.ajax({
-            url: '/api/admingettingStudents',
+            url: '/api/students',
             type: 'GET',
+            data: {
+                search: ($('#studentSearch').val() || '').trim(),
+                page: page
+            },
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Accept': 'application/json'
             },
             success: function (response) {
-                allStudents = responseItems(response);
-                updateStudentStats();
-                filterStudents();
+                const paginator = response.data || {};
+                allStudents = paginator.data || [];
+
+                $('#totalStudents').text(response.stats?.total ?? paginator.total ?? 0);
+                $('#newThisMonth').text(response.stats?.new_this_month ?? 0);
+
+                renderStudents(allStudents, paginator);
+                renderPager(paginator);
             },
             error: function (xhr) {
                 $('#studentTableBody').html(`
@@ -500,100 +507,65 @@
                         </td>
                     </tr>
                 `);
+                $('#studentPager').empty();
+            },
+            complete: function () {
+                $('.student-table').removeClass('is-loading');
             }
         });
     }
 
-    function updateStudentStats() {
-        const inactive = allStudents.filter(student =>
-            (student.status || 'active').toLowerCase() === 'inactive'
-        ).length;
-
-        $('#totalStudents').text(allStudents.length);
-        $('#activeStudents').text(allStudents.length - inactive);
-        $('#inactiveStudents').text(inactive);
-    }
-
-    function filterStudents() {
-        const query = ($('#studentSearch').val() || '').trim().toLowerCase();
-
-        const filtered = allStudents.filter(function (student) {
-            const className = student.academic_class?.class_name
-                || student.academicClass?.class_name
-                || student.class?.class_name
-                || '';
-
-            return [
-                student.name,
-                student.email,
-                student.student_roll_no,
-                student.status,
-                className
-            ].join(' ').toLowerCase().includes(query);
-        });
+    function renderStudents(students, paginator) {
+        const query = ($('#studentSearch').val() || '').trim();
 
         $('#studentCount').text(
             query
-                ? `Showing ${filtered.length} of ${allStudents.length} students`
+                ? `${paginator.total ?? 0} result${paginator.total === 1 ? '' : 's'} for "${query}"`
                 : 'Students registered in this institute'
         );
-
-        renderStudents(filtered);
-    }
-
-    function renderStudents(students) {
-        if (!allStudents.length) {
-            $('#studentTableBody').html(`
-                <tr>
-                    <td colspan="7" class="text-center py-5">
-                        No students found. Add a student to get started.
-                    </td>
-                </tr>
-            `);
-            return;
-        }
 
         if (!students.length) {
             $('#studentTableBody').html(`
                 <tr>
                     <td colspan="7" class="text-center py-5">
-                        No matching students found.
+                        ${query
+                            ? 'No matching students found.'
+                            : 'No students found. Add a student to get started.'}
                     </td>
                 </tr>
             `);
             return;
         }
 
+        const startAt = paginator.from || 1;
         let rows = '';
 
         students.forEach(function (student, index) {
-            const status = (student.status || 'active').toLowerCase();
-            const statusClass = status === 'inactive'
-                ? 'badge-inactive'
-                : 'badge-active';
+            const photo = student.profile_image
+                ? `<img src="/storage/${escapeHtml(student.profile_image)}" class="student-avatar" alt="">`
+                : `<div class="student-avatar">${escapeHtml(studentInitials(student.name))}</div>`;
 
-            const className = student.academic_class?.class_name
-                || student.academicClass?.class_name
-                || student.class?.class_name
-                || '—';
+            const className = studentClassNames(student);
+            const classCell = className
+                ? `<span class="class-tag">${escapeHtml(className)}</span>`
+                : '<span class="text-muted">—</span>';
 
             rows += `
                 <tr>
-                    <td class="ps-4">${index + 1}</td>
+                    <td class="ps-4 text-muted">${startAt + index}</td>
                     <td>
                         <div class="student-cell">
-                            <div class="student-avatar">
-                                ${escapeHtml(studentInitials(student.name))}
+                            ${photo}
+                            <div>
+                                <strong>${escapeHtml(student.name)}</strong>
+                                <small>${escapeHtml(student.email)}</small>
                             </div>
-                            <strong>${escapeHtml(student.name)}</strong>
                         </div>
                     </td>
-                    <td>${escapeHtml(student.student_roll_no || '—')}</td>
-                    <td>${escapeHtml(student.email)}</td>
-                    <td>${escapeHtml(className)}</td>
-                    <td>
-                        <span class="${statusClass}">${escapeHtml(status)}</span>
-                    </td>
+                    <td class="cell-nowrap">${escapeHtml(student.student_roll_no || '—')}</td>
+                    <td>${classCell}</td>
+                    <td><span class="attempt-pill"><i class="bi bi-journal-check"></i>${student.quiz_attempts_count ?? 0}</span></td>
+                    <td class="cell-nowrap">${formatJoined(student.created_at)}</td>
                     <td class="text-end pe-4">
                         <div class="action-buttons">
                             <button type="button"
@@ -619,64 +591,124 @@
         $('#studentTableBody').html(rows);
     }
 
-    function resetStudentForm() {
-        $('#studentForm')[0].reset();
-        $('#studentId').val('');
-        $('#studentModalTitle').text('Add Student');
-        $('#studentPassword').prop('required', true);
-        $('#studentPasswordConfirmation').prop('required', true);
-        $('#passwordHint').text('Required when creating a student.');
-        $('#saveStudentBtn').text('Save Student');
+    function renderPager(p) {
+        if (!p || !p.total || p.last_page <= 1) {
+            $('#studentPager').html(
+                p && p.total ? `<small class="text-muted">Showing all ${p.total} student${p.total === 1 ? '' : 's'}</small>` : ''
+            );
+            return;
+        }
+
+        $('#studentPager').html(`
+            <small class="text-muted">Showing ${p.from}–${p.to} of ${p.total} students</small>
+            <div class="btn-group">
+                <button type="button" class="btn btn-light btn-sm" data-page="${p.current_page - 1}"
+                    ${p.current_page <= 1 ? 'disabled' : ''}>
+                    <i class="bi bi-chevron-left"></i> Previous
+                </button>
+                <button type="button" class="btn btn-light btn-sm disabled">
+                    Page ${p.current_page} of ${p.last_page}
+                </button>
+                <button type="button" class="btn btn-light btn-sm" data-page="${p.current_page + 1}"
+                    ${p.current_page >= p.last_page ? 'disabled' : ''}>
+                    Next <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        `);
     }
 
-    $('#studentModal').on('show.bs.modal', function () {
-        if (!$('#studentId').val()) {
-            resetStudentForm();
-            loadClasses();
-        }
+    $(document).on('click', '#studentPager [data-page]', function () {
+        loadStudents(Number($(this).data('page')));
     });
 
-    $(document).on('click', '.edit-btn', function () {
-        const id = $(this).data('id');
-        const student = allStudents.find(item => String(item.id) === String(id));
+    // Search on the server, after the user stops typing
+    $('#studentSearch').on('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () { loadStudents(1); }, 300);
+    });
+
+    // ---------- Add / Edit modal ----------
+    function resetStudentForm() {
+        $('#studentForm')[0].reset();
+        clearFieldErrors();
+        $('#studentId').val('');
+        $('#studentModalTitle').text('Add Student');
+        $('#studentPassword, #studentPasswordConfirmation').prop('required', true);
+        $('#passwordHint').text('Required when creating a student.');
+        $('#saveStudentBtn').text('Save Student');
+        $('#studentPhotoPreview').hide().attr('src', '');
+    }
+
+    // One handler decides: opened by an Edit button = fill the form, otherwise = blank form
+    $('#studentModal').on('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.edit-btn') : $();
+
+        resetStudentForm();
+
+        if (!trigger.length) {
+            return;
+        }
+
+        const student = allStudents.find(item => String(item.id) === String(trigger.data('id')));
 
         if (!student) {
             showStudentMessage('error', 'Student details could not be found.');
             return;
         }
 
+        const classId = studentClassList(student)[0]?.id || '';
+
         $('#studentId').val(student.id);
         $('#studentName').val(student.name || '');
         $('#studentEmail').val(student.email || '');
         $('#studentRoll').val(student.student_roll_no || '');
-        $('#studentPassword, #studentPasswordConfirmation').val('');
         $('#studentPassword, #studentPasswordConfirmation').prop('required', false);
         $('#studentModalTitle').text('Edit Student');
         $('#saveStudentBtn').text('Update Student');
         $('#passwordHint').text('Leave blank to keep the current password.');
 
-        const classId = student.class_id
-            || student.academic_class?.id
-            || student.academicClass?.id
-            || '';
+        if (student.profile_image) {
+            $('#studentPhotoPreview').attr('src', '/storage/' + student.profile_image).show();
+        }
 
-        loadClasses(classId);
+        // Classes are already loaded into the dropdown, so just select the right one
+        if ($('#studentClass option').length > 1) {
+            $('#studentClass').val(String(classId));
+        } else {
+            loadClasses(classId);
+        }
+    });
+
+    // Preview a newly chosen photo
+    $('#studentPhoto').on('change', function () {
+        const file = this.files[0];
+
+        if (file) {
+            $('#studentPhotoPreview').attr('src', URL.createObjectURL(file)).show();
+        }
     });
 
     $('#studentForm').on('submit', function (event) {
         event.preventDefault();
+        clearFieldErrors();
 
         const id = $('#studentId').val();
         const password = $('#studentPassword').val();
         const confirmation = $('#studentPasswordConfirmation').val();
 
-        if (password !== confirmation) {
-            showStudentMessage('error', 'Passwords do not match.');
-            return;
-        }
+        let invalid = false;
 
         if (!id && !password) {
-            showStudentMessage('error', 'Please enter a password for the new student.');
+            setFieldError('password', 'Please enter a password for the new student.');
+            invalid = true;
+        }
+
+        if (password !== confirmation) {
+            setFieldError('password_confirmation', 'Passwords do not match.');
+            invalid = true;
+        }
+
+        if (invalid) {
             return;
         }
 
@@ -685,6 +717,12 @@
 
         if (id) {
             formData.append('_method', 'PUT');
+        }
+
+        // Blank password while editing = keep the current one
+        if (!password) {
+            formData.delete('password');
+            formData.delete('password_confirmation');
         }
 
         $('#saveStudentBtn').prop('disabled', true);
@@ -700,25 +738,25 @@
             processData: false,
             contentType: false,
             success: function (response) {
-                bootstrap.Modal.getOrCreateInstance(
-                    document.getElementById('studentModal')
-                ).hide();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('studentModal')).hide();
 
-                resetStudentForm();
-                loadStudents();
+                // New students appear first (latest), edited ones stay on the same page
+                loadStudents(id ? currentPage : 1);
 
                 showStudentMessage(
                     'success',
-                    response.message || (id
-                        ? 'Student updated successfully.'
-                        : 'Student created successfully.')
+                    response.message || (id ? 'Student updated successfully.' : 'Student created successfully.')
                 );
             },
             error: function (xhr) {
-                showStudentMessage(
-                    'error',
-                    getStudentError(xhr, 'Unable to save student.')
-                );
+                if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                    Object.entries(xhr.responseJSON.errors).forEach(function ([field, messages]) {
+                        setFieldError(field, messages[0]);
+                    });
+                    return;
+                }
+
+                showStudentMessage('error', getStudentError(xhr, 'Unable to save student.'));
             },
             complete: function () {
                 $('#saveStudentBtn').prop('disabled', false);
@@ -726,8 +764,13 @@
         });
     });
 
-    $(document).on('click', '.delete-btn', function () {
-        $('#deleteStudentId').val($(this).data('id'));
+    // ---------- Delete (always asks first) ----------
+    $('#deleteStudentModal').on('show.bs.modal', function (event) {
+        const trigger = $(event.relatedTarget).closest('.delete-btn');
+        const student = allStudents.find(item => String(item.id) === String(trigger.data('id')));
+
+        $('#deleteStudentId').val(trigger.data('id') || '');
+        $('#deleteStudentName').text(student ? student.name : 'This student');
     });
 
     $('#confirmDeleteStudent').on('click', function () {
@@ -748,21 +791,15 @@
                 'Accept': 'application/json'
             },
             success: function (response) {
-                bootstrap.Modal.getOrCreateInstance(
-                    document.getElementById('deleteStudentModal')
-                ).hide();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteStudentModal')).hide();
 
-                loadStudents();
-                showStudentMessage(
-                    'success',
-                    response.message || 'Student deleted successfully.'
-                );
+                // If that was the last row on this page, go back one page
+                loadStudents(allStudents.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage);
+
+                showStudentMessage('success', response.message || 'Student deleted successfully.');
             },
             error: function (xhr) {
-                showStudentMessage(
-                    'error',
-                    getStudentError(xhr, 'Unable to delete student.')
-                );
+                showStudentMessage('error', getStudentError(xhr, 'Unable to delete student.'));
             },
             complete: function () {
                 button.prop('disabled', false).text('Delete');
@@ -770,8 +807,6 @@
             }
         });
     });
-
-    $('#studentSearch').on('input', filterStudents);
 
     $(document).ready(function () {
         loadClasses();

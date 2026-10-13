@@ -34,3 +34,30 @@ Route::get('/superAdmin/addInstitute', function () {
      Route::get('/instituteAdmin/students', function () {
         return view('InstituteAdmin.students');
     });
+
+     Route::get('/instituteAdmin/profile/{id}', [ProfileController::class, 'editInstituteProfile']);
+
+
+    // Route::get('/Admin/profile', function () {
+    // return view('#')
+    Route::get('/teacher/dashboard', function () {
+    return view('teacher.dashboard');
+});
+Route::get('/teacher/createQuiz', function () {
+    return view('teacher.createQuiz');
+    });
+    Route::get('/teacher/quizzes', function () {
+    return view('teacher.quizzes');
+    });
+    Route::get('/teacher/{quiz}/questions', function ($quiz) {
+    return view('teacher.questions', compact('quiz'));
+})->whereNumber('quiz');
+    // });
+
+// });
+// Route::get('/teacher/classes', function (Request $request) {
+//     return response()->json([
+//         'status' => true,
+//         'data' => $request->user()->teachingClasses()->get()
+//     ]);
+// });

@@ -10,16 +10,33 @@ use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
-    public function index(Request $request){
-        $teacher=$request->user();
-        $quizzes =Quiz::with(['academicClasses','subject'])->where('institute_id',$teacher->institute_id)->where('created_by',$teacher->id)->latest()->get();
-        return response()->json([
-         'status'=>true,
-         'message'=>'quiz is here',
-         'data'=>$quizzes 
-        ]);
+   public function index(Request $request)
+{
+    $teacher = $request->user();
 
+    $quizzes = Quiz::with(['academicClass', 'subject'])
+        ->withCount('questions')
+        ->where('institute_id', $teacher->institute_id)
+        ->where('created_by', $teacher->id)
+        ->latest()
+        ->get();
+
+    return response()->json(['status' => true, 'message' => 'quizzes fetched', 'data' => $quizzes]);
+}
+
+public function unpublish(Request $request, Quiz $quiz)
+{
+    $teacher = $request->user();
+
+    if ($quiz->institute_id != $teacher->institute_id || $quiz->created_by != $teacher->id) {
+        return response()->json(['status' => false, 'message' => 'Quiz not found'], 404);
     }
+
+    // Later: block this if students have already attempted the quiz
+    $quiz->update(['is_published' => false]);
+
+    return response()->json(['status' => true, 'message' => 'Quiz unpublished', 'data' => $quiz]);
+}
     public function store(Request $request){
       $teacher=$request->user();
       $validated = $request->validate([

@@ -673,6 +673,10 @@
             }
              document.getElementById('profileLink').href = '/super-admin/profile/' + response.data.id;
             //  console.log("admin id",response.data.id);
+            
+            if (response && response.id) {
+                document.getElementById('profileLink').href = '/super-admin/profile/' + response.id;
+            }
         }
     });
     document.getElementById('logout').addEventListener('click', function () {

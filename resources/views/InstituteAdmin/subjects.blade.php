@@ -1,986 +1,549 @@
 @extends('layouts.institute')
 
 @section('title', 'Subject Management')
-
 @section('user-role', 'Institute Admin')
-
 @section('page-title', 'Subject Management')
-
 @section('page-description', 'Manage subjects for your institute')
-@section('sidebar')
 
-    <a href="/instituteAdmin/dashboard" class="nav-link">
-        <i class="bi bi-speedometer2"></i>
-        <span>Dashboard</span>
-    </a>
 
-    <a href="/instituteAdmin/classes" class="nav-link ">
-        <i class="bi bi-mortarboard-fill"></i>
-        <span>Classes</span>
-    </a>
-
-    <a href="#" class="nav-link active">
-        <i class="bi bi-book"></i>
-        <span>Subjects</span>
-    </a>
-
-    <a href='/instituteAdmin/teachers' class="nav-link">
-        <i class="bi bi-person-badge"></i>
-        <span>Teachers</span>
-    </a>
-
-    <a href="#" class="nav-link">
-        <i class="bi bi-people-fill"></i>
-        <span>Students</span>
-    </a>
-
-@endsection
 
 @section('content')
+<div class="container-fluid px-0">
 
-<div class="class-management">
-
-    <div class="section-header">
+    {{-- Page heading --}}
+    <div class="page-head">
         <div>
-            <h2>Subjects</h2>
-          <p>Create and manage subjects for your institute.</p>
+            <h4 class="mb-1">Subjects</h4>
+            <p class="text-muted mb-0">Create and manage subjects for your institute</p>
         </div>
 
-        <button
-            type="button"
-            class="btn-lime"
-            id="addSubjectBtn"
-            data-bs-toggle="modal"
-            data-bs-target="#addSubjectModal"
-            >
-           
-    <i class="bi bi-plus-lg me-1"></i>
-    Add Subject
-</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal">
+            <i class="bi bi-plus-lg me-1"></i> Add Subject
+        </button>
     </div>
 
-
-    <div class="row g-4">
-
-        <!-- Add / Edit Class -->
-
-        <div class="col-lg-12">
-            <div class="content-card">
-
-                <div class="class-list-header">
-
-                    <div>
-                        <h3>Institute Subjects</h3>
-                    </div>
-
-                    <div class="class-count">
-                        <span id="subjectCount"></span>
-                        Subjects
-                    </div>
-
+    {{-- Subject list --}}
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 px-4 py-3">
+            <div class="list-head">
+                <div>
+                    <h5 class="mb-1">Institute Subjects</h5>
+                    <small class="text-muted">All subjects available in your institute</small>
                 </div>
 
+                <div class="list-tools">
+                    <span class="count-pill" id="subjectCount">0 subjects</span>
 
-                <div class="table-responsive">
-
-                    <table class="table class-table">
-
-                        <thead>
-
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="classesTableBody">
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-
-                <div
-                    class="empty-state"
-                    id="emptyState"
-                    style="display: none;"
-                >
-
-                    <div class="empty-icon">
-                        <i class="bi bi-mortarboard"></i>
+                    <div class="input-group search-box">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="subjectSearch" placeholder="Search by name or code" autocomplete="off">
                     </div>
-
-                <h4>No Subjects Found</h4>
-                   Add your first subject to start managing your institute.
-
-                    <button
-                        type="button"
-                        class="btn-lime"
-                    >
-                        <i class="bi bi-plus-lg me-1"></i>
-                     Add Subject
-                    </button>
-
                 </div>
-
             </div>
-
         </div>
 
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 data-table">
+                    <thead>
+                        <tr>
+                            <th class="col-index ps-4">#</th>
+                            <th class="col-main">Subject</th>
+                            <th class="col-code">Code</th>
+                            <th class="col-actions text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectsTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">Loading subjects...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <!-- Classes List -->
+{{-- ================= Add / Edit modal ================= --}}
+<div class="modal fade" id="subjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
 
-        <div class="col-lg-6 mx-auto">
-            
-            <div class="content-card class-form-card">
-
-                <div class="class-card-header">
-
-                    <div>
-                        <h3 id="formTitle">Update Subject</h3>
-
-                        <p id="formDescription">
-                            Enter the class details below.
-                        </p>
-                    </div>
-
-                    <div class="class-header-icon">
-                       <i class="bi bi-book"></i>
-                    </div>
-
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="subjectModalTitle">Add Subject</h5>
+                    <small class="text-muted" id="subjectModalSub">Enter the subject details below</small>
                 </div>
-                <form id="Form">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form id="subjectForm" novalidate>
+                <div class="modal-body">
                     <input type="hidden" id="editId">
+
                     <div class="mb-3">
-
-                        <label
-                            for="className"
-                            class="form-label"
-                        >
-                             Name
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="Name"
-                            name="name"
-                            placeholder="e.g. Subject Urdu"
-                            required
-                        >
-
+                        <label for="subjectName" class="form-label">Subject Name</label>
+                        <input type="text" class="form-control" id="subjectName" name="name" placeholder="e.g. Urdu" required>
+                        <div class="field-error" data-error="name"></div>
                     </div>
 
-                    <div class="mb-4">
-
-                        <label
-                            for="sortOrder"
-                            class="form-label"
-                        >
-                             Subject Code
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="code"
-                            name="code"
-                            required
-                        >
-
-                        <div class="form-help">
-                            Determines the display order of classes.
-                        </div>
-
+                    <div>
+                        <label for="subjectCode" class="form-label">Subject Code</label>
+                        <input type="text" class="form-control" id="subjectCode" name="code" placeholder="e.g. URD-101" autocomplete="off" required>
+                        <small class="text-muted">A short, unique code for this subject.</small>
+                        <div class="field-error" data-error="code"></div>
                     </div>
-                    <div class="class-form-actions">
+                </div>
 
-                        <button
-                            type="submit"
-                            class="btn-lime"
-                            id="saveClassBtn"
-                        >
-                            <i class="bi bi-check-lg me-1"></i>
-                            Update Subject
-                        </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveSubjectBtn">
+                        <i class="bi bi-check-lg me-1"></i> Save Subject
+                    </button>
+                </div>
+            </form>
 
-                        <button
-                            type="button"
-                            class="btn-cancel"
-                            id="cancelEditBtn"
-                            style="display: none;"
-                        >
-                            Cancel
-                        </button>
-                           
-                    </div>
+        </div>
+    </div>
+</div>
 
-                </form>
+{{-- ================= Delete confirmation ================= --}}
+<div class="modal fade" id="deleteSubjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body text-center p-4">
+
+                <div class="delete-icon mb-3"><i class="bi bi-trash"></i></div>
+
+                <h5>Delete Subject?</h5>
+
+                <p class="text-muted mb-4">
+                    <strong id="deleteSubjectName">This subject</strong> will be removed permanently.
+                    This action cannot be undone.
+                </p>
+
+                <input type="hidden" id="deleteSubjectId">
+
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteSubject">Delete</button>
+                </div>
 
             </div>
-
-           
-
         </div>
-
     </div>
-
 </div>
-{{-- add modal --}}
-<div class="modal fade" id="addSubjectModal" tabindex="-1"> 
-  <div class="modal-dialog"> 
-    <div class="modal-content"> 
-      <div class="modal-header"> 
-        <h5 class="modal-title">Add Subject</h5> 
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> 
-      </div> 
-      <div class="modal-body"> 
-        <form id="addForm">
-                    <div class="mb-3">
 
-                        <label
-                            for="className"
-                            class="form-label"
-                        >
-                             Name
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="Name"
-                            name="name"
-                            placeholder="e.g. Subject Urdu"
-                            required
-                        >
-
-                    </div>
-
-                    <div class="mb-4">
-
-                        <label
-                            for="sortOrder"
-                            class="form-label"
-                        >
-                             Subject Code
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="code"
-                            name="code"
-                            required
-                        >
-
-                    </div>
-                    <div class="class-form-actions">
-
-                        <button
-                            type="submit"
-                            class="btn-lime"
-                            id="saveClassBtn"
-                        >
-                            <i class="bi bi-check-lg me-1"></i>
-                            Save Subject
-                        </button>
-
-                           
-                    </div>
-
-                </form>
-
-      </div> 
-      <div class="modal-footer"> 
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> 
-   
-      </div> 
-    </div> 
-  </div> 
-</div>
-{{-- result model
- --}}
-
- <!-- Update Result Modal -->
-<div class="result-modal-overlay" id="resultModal">
-
-    <div class="result-modal">
-
-        <button type="button" class="result-modal-close" id="closeResultModal">
-            <i class="bi bi-x-lg"></i>
-        </button>
-
-        <div class="result-modal-icon" id="resultModalIcon">
-            <i class="bi bi-check-lg"></i>
-        </div>
-
-        <h3 id="resultModalTitle">Class Updated</h3>
-
-        <p id="resultModalMessage">
-            The class has been updated successfully.
-        </p>
-
-        <button type="button" class="btn-lime result-modal-btn" id="resultModalOk">
-            OK
-        </button>
-
-    </div>
-
-</div>
+{{-- Messages --}}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastBox"></div>
 @endsection
+
+
 @push('styles')
-
 <style>
-    .result-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.45);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 20px;
-}
-
-.result-modal-overlay.show {
-    display: flex;
-}
-
-.result-modal {
-    position: relative;
-    width: 100%;
-    max-width: 390px;
-    background: var(--white);
-    border-radius: 14px;
-    padding: 32px 28px;
-    text-align: center;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-    animation: resultModalShow 0.2s ease;
-}
-
-.result-modal-close {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 30px;
-    height: 30px;
-    border: 0;
-    background: transparent;
-    color: var(--slate);
-    font-size: 13px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.result-modal-close:hover {
-    background: var(--off-white);
-    color: var(--text-color);
-}
-
-.result-modal-icon {
-    width: 58px;
-    height: 58px;
-    margin: 0 auto 17px;
-    border-radius: 50%;
-    background: var(--primary-light);
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 25px;
-}
-
-.result-modal h3 {
-    margin: 0 0 8px;
-    color: var(--text-color);
-    font-size: 19px;
-    font-weight: 700;
-}
-
-.result-modal p {
-    margin: 0 auto 22px;
-    max-width: 290px;
-    color: var(--slate);
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.result-modal-btn {
-    min-width: 90px;
-}
-
-.result-modal.error .result-modal-icon {
-    background: rgba(220, 38, 38, 0.1);
-    color: var(--danger);
-}
-
-.result-modal.error .result-modal-btn {
-    background: var(--danger);
-    border-color: var(--danger);
-}
-
-@keyframes resultModalShow {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-    .class-management {
-        width: 100%;
-    }
-
-    .class-form-card {
-        height: 100%;
-    }
-
-    .class-card-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 15px;
-        margin-bottom: 25px;
-    }
-
-    .class-card-header h3,
-    .class-list-header h3 {
-        margin: 0;
-        color: var(--text-color);
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-    .class-card-header p,
-    .class-list-header p {
-        margin: 5px 0 0;
-        color: var(--slate);
-        font-size: 12px;
-    }
-
-    .class-header-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 9px;
-        background: var(--primary-light);
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    .form-help {
-        margin-top: 6px;
-        color: var(--slate);
-        font-size: 11px;
-    }
-
-    .class-form-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .btn-cancel {
-        border: 1px solid var(--slate-light);
-        background: var(--white);
-        color: var(--slate);
-        padding: 9px 16px;
-        border-radius: 7px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .btn-cancel:hover {
-        border-color: var(--secondary-color);
-        color: var(--secondary-color);
-    }
-
-    .class-list-header {
+    .page-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
     }
 
-    .class-count {
-        background: var(--primary-light);
-        color: var(--primary-color);
-        border-radius: 20px;
+    .list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .list-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .count-pill {
         padding: 7px 12px;
-        font-size: 11px;
+        border-radius: 999px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-size: 12px;
         font-weight: 700;
         white-space: nowrap;
     }
 
-    .class-table {
-        margin-bottom: 0;
-        vertical-align: middle;
-    }
+    .search-box { width: 280px; max-width: 100%; }
+    .search-box .form-control { border-left: 0; }
+    .search-box .input-group-text { border-right: 0; }
 
-    .class-table thead th {
-        padding: 12px 10px;
+    /* ---------- Table ---------- */
+    .data-table { min-width: 560px; }
+
+    .data-table thead th {
         background: var(--off-white);
         color: var(--slate);
-        border-bottom: 1px solid var(--slate-light);
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
         white-space: nowrap;
+        padding-top: 12px;
+        padding-bottom: 12px;
     }
 
-    .class-table tbody td {
-        padding: 15px 10px;
-        border-bottom: 1px solid var(--slate-light);
-        color: var(--text-color);
-        font-size: 13px;
-    }
+    .data-table tbody td { font-size: 14px; padding-top: 12px; padding-bottom: 12px; vertical-align: middle; }
 
-    .class-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
+    .col-index   { width: 64px; }
+    .col-code    { width: 200px; }
+    .col-actions { width: 200px; }
 
-    .class-table tbody tr:hover {
+    .row-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .row-main strong { display: block; font-weight: 600; overflow-wrap: anywhere; }
+
+    .row-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border-radius: 10px;
         background: var(--primary-light);
-    }
-
-    .class-name-cell {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-    }
-
-    .class-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        background: var(--primary-light);
-        color: var(--primary-color);
+        color: var(--primary-dark);
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0;
     }
 
-    .class-name-cell strong {
-        display: block;
-        color: var(--text-color);
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .class-name-cell span {
-        display: block;
-        margin-top: 2px;
-        color: var(--slate);
-        font-size: 10px;
-    }
-
-    .group-badge {
+    .code-badge {
         display: inline-block;
-        padding: 5px 9px;
-        border-radius: 20px;
-        background: var(--secondary-color);
-        color: var(--white);
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: capitalize;
-    }
-
-    .sort-number {
-        color: var(--text-color);
+        padding: 5px 11px;
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--secondary-color) 12%, white);
+        color: var(--secondary-color);
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 12px;
         font-weight: 700;
     }
 
-    .action-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 7px;
-    }
+    /* ---------- Row actions ---------- */
+    .action-buttons { display: inline-flex; gap: 8px; }
 
     .action-btn {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        border-radius: 6px;
-        padding: 7px 10px;
-        font-size: 11px;
-        font-weight: 700;
-        transition: 0.2s;
+        gap: 6px;
+        padding: 6px 12px;
+        border: 0;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.2;
+        transition: background 0.2s ease, color 0.2s ease;
     }
 
-    .edit-btn {
-        border: 1px solid var(--primary-color);
-        background: var(--primary-light);
-        color: var(--primary-dark);
-    }
+    .edit-btn { background: var(--primary-light); color: var(--primary-dark); }
+    .edit-btn:hover { background: var(--primary-color); color: var(--on-primary); }
 
-    .edit-btn:hover {
-        background: var(--primary-color);
-        color: var(--white);
-    }
+    .delete-btn { background: color-mix(in srgb, var(--danger) 10%, white); color: var(--danger); }
+    .delete-btn:hover { background: var(--danger); color: #fff; }
 
-    .delete-btn {
-        border: 1px solid rgba(220, 38, 38, 0.2);
-        background: rgba(220, 38, 38, 0.08);
-        color: var(--danger);
-    }
+    /* ---------- Empty state ---------- */
+    .empty-state { padding: 10px; color: var(--slate); }
+    .empty-state i.big { display: block; margin-bottom: 10px; font-size: 40px; color: var(--primary-dark); }
+    .empty-state h6 { color: var(--text-color); }
 
-    .delete-btn:hover {
-        background: var(--danger);
-        color: var(--white);
-    }
+    /* ---------- Forms ---------- */
+    .field-error { color: var(--danger); font-size: 12px; margin-top: 4px; }
+    .field-error:empty { display: none; }
 
-    .empty-state {
-        text-align: center;
-        padding: 55px 20px;
-    }
-
-    .empty-icon {
-        width: 58px;
-        height: 58px;
-        margin: 0 auto 15px;
+    .delete-icon {
+        width: 60px;
+        height: 60px;
+        margin: auto;
         border-radius: 50%;
-        background: var(--primary-light);
-        color: var(--primary-color);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        background: color-mix(in srgb, var(--danger) 12%, white);
+        color: var(--danger);
+        font-size: 25px;
     }
 
-    .empty-state h4 {
-        margin: 0;
-        color: var(--text-color);
-        font-size: 16px;
-        font-weight: 700;
+    /* ---------- Messages ---------- */
+    .toast-container { z-index: 2000; }
+
+    .notice-toast {
+        border: 0;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        min-width: 300px;
     }
 
-    .empty-state p {
-        margin: 6px 0 18px;
-        color: var(--slate);
-        font-size: 12px;
+    .notice-toast .toast-body { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; white-space: pre-line; }
+    .notice-toast.success { background: #dcfce7; color: #15803d; }
+    .notice-toast.error   { background: #fee2e2; color: #b91c1c; }
+
+    @media (max-width: 768px) {
+        .search-box { width: 100%; }
+        .list-tools { width: 100%; }
+        .list-head { flex-direction: column; align-items: stretch; }
+        .page-head .btn { width: 100%; }
     }
-
-    @media (max-width: 991.98px) {
-
-        .class-list-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .class-table {
-            min-width: 700px;
-        }
-
-    }
-
-    @media (max-width: 575.98px) {
-
-        .class-card-header {
-            margin-bottom: 20px;
-        }
-
-        .class-form-actions {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .class-form-actions .btn-lime,
-        .class-form-actions .btn-cancel {
-            width: 100%;
-        }
-
-    }
-
 </style>
 @endpush
+
+
 @push('scripts')
 <script>
+    let allSubjects = [];
+
+    const SAVE_HTML   = '<i class="bi bi-check-lg me-1"></i> Save Subject';
+    const UPDATE_HTML = '<i class="bi bi-check-lg me-1"></i> Update Subject';
+
+    // ---------- Helpers ----------
+    function esc(value) {
+        return $('<div>').text(value ?? '').html();
+    }
+
+    function authHeaders() {
+        return { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' };
+    }
+
+    function responseItems(response) {
+        if (Array.isArray(response)) return response;
+        if (Array.isArray(response?.data)) return response.data;
+        if (Array.isArray(response?.data?.data)) return response.data.data;
+        return [];
+    }
+
+    function getErrorMessage(xhr, fallback) {
+        const response = xhr.responseJSON;
+        if (response?.errors) return Object.values(response.errors).flat().join('\n');
+        return response?.message || fallback;
+    }
+
+    function showNotice(type, message) {
+        const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+        const el = $(`
+            <div class="toast notice-toast ${type}" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body">
+                    <i class="bi ${icon}"></i>
+                    <span class="flex-grow-1">${esc(message)}</span>
+                    <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>`);
+
+        $('#toastBox').append(el);
+        el.on('hidden.bs.toast', () => el.remove());
+        new bootstrap.Toast(el[0], { delay: 4000 }).show();
+    }
+
+    function clearFieldErrors(form) {
+        $(form).find('.field-error').text('');
+        $(form).find('.is-invalid').removeClass('is-invalid');
+    }
+
+    function setFieldError(form, field, message) {
+        $(form).find('[data-error="' + field + '"]').text(message);
+        $(form).find('[name="' + field + '"]').addClass('is-invalid');
+    }
+
+    function showServerErrors(form, xhr, fallback) {
+        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+            Object.entries(xhr.responseJSON.errors).forEach(([field, messages]) => setFieldError(form, field, messages[0]));
+            showNotice('error', 'Please fix the highlighted fields and try again.');
+            return;
+        }
+
+        showNotice('error', getErrorMessage(xhr, fallback));
+    }
+
+    function setBusy(button, busy, busyText, normalHtml) {
+        button.prop('disabled', busy);
+        button.html(busy ? `<span class="spinner-border spinner-border-sm me-2"></span>${busyText}` : normalHtml);
+    }
+
+    // ---------- List ----------
+    function messageRow(icon, title, message, withButton) {
+        return `
+            <tr>
+                <td colspan="4" class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="bi ${icon} big"></i>
+                        <h6 class="mb-1">${esc(title)}</h6>
+                        <p class="mb-${withButton ? '3' : '0'}">${esc(message)}</p>
+                        ${withButton ? '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal"><i class="bi bi-plus-lg me-1"></i> Add Subject</button>' : ''}
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    function renderSubjects() {
+        const query = ($('#subjectSearch').val() || '').trim().toLowerCase();
+
+        const list = allSubjects.filter(item =>
+            !query || [item.name, item.code].join(' ').toLowerCase().includes(query)
+        );
+
+        $('#subjectCount').text(query
+            ? `${list.length} of ${allSubjects.length} subjects`
+            : `${allSubjects.length} ${allSubjects.length === 1 ? 'subject' : 'subjects'}`);
+
+        if (!allSubjects.length) {
+            $('#subjectsTableBody').html(messageRow('bi-book', 'No subjects found', 'Add your first subject to start managing your institute.', true));
+            return;
+        }
+
+        if (!list.length) {
+            $('#subjectsTableBody').html(messageRow('bi-search', 'No matching subjects', 'Try a different name or code.', false));
+            return;
+        }
+
+        $('#subjectsTableBody').html(list.map(function (item, index) {
+            return `
+                <tr>
+                    <td class="ps-4 text-muted">${index + 1}</td>
+                    <td>
+                        <div class="row-main">
+                            <div class="row-icon"><i class="bi bi-book"></i></div>
+                            <strong>${esc(item.name)}</strong>
+                        </div>
+                    </td>
+                    <td><span class="code-badge">${esc(item.code || '—')}</span></td>
+                    <td class="text-end pe-4">
+                        <div class="action-buttons">
+                            <button type="button" class="action-btn edit-btn" data-id="${item.id}"
+                                data-bs-toggle="modal" data-bs-target="#subjectModal">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button type="button" class="action-btn delete-btn" data-id="${item.id}"
+                                data-bs-toggle="modal" data-bs-target="#deleteSubjectModal">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        }).join(''));
+    }
+
     function loadSubjects() {
-    $.ajax({
-        url: '/api/subjects',
-        type: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Accept': 'application/json'
-        },
-        success: function(response) {
-            const subjects = response;
-            $('#subjectCount').html(subjects.length);
-            console.log(subjects);
-            let tableRow ='';
-//             let group = [];
-//                 subjects.forEach(item => {
-//                    group.push(item.group);
-// });
-//             var uniqGroup = [...new Set(group)];
-//                console.log("groups :" , uniqGroup);
-//                let groupOptions  = '<option value = "" >Select Group</option>';
-//                uniqGroup.forEach(item =>{
-//                     groupOptions += `
-//                     <option value"${item}">${item}</option>
-                    
-//                     `;
-//                });
-//                $('#classGroup').html(groupOptions);
-            subjects.forEach((item,index) => {
-                      tableRow +=`
-                          <tr>
+        $.ajax({
+            url: '/api/subjects',
+            type: 'GET',
+            headers: authHeaders(),
+            success: function (response) {
+                allSubjects = responseItems(response);
+                renderSubjects();
+            },
+            error: function (xhr) {
+                $('#subjectsTableBody').html(messageRow('bi-exclamation-circle', "Couldn't load subjects", getErrorMessage(xhr, 'Refresh the page and try again.'), false));
+            }
+        });
+    }
 
-                                <td>${index + 1}</td>
+    $('#subjectSearch').on('input', renderSubjects);
 
-                                <td>
-                                    <div class="class-name-cell">
+    // ---------- Add / Edit ----------
+    $('#subjectModal').on('show.bs.modal', function (event) {
+        const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.edit-btn') : $();
 
-                                        <div class="class-icon">
-                                            <i class="bi bi-mortarboard"></i>
-                                        </div>
+        $('#subjectForm')[0].reset();
+        clearFieldErrors('#subjectForm');
+        $('#editId').val('');
+        $('#subjectModalTitle').text('Add Subject');
+        $('#subjectModalSub').text('Enter the subject details below');
+        setBusy($('#saveSubjectBtn'), false, '', SAVE_HTML);
 
-                                        <div>
-                                            <strong>${item.name}</strong>
-                                     
-                                        </div>
+        if (!trigger.length) return;
 
-                                    </div>
-                                </td>
+        const item = allSubjects.find(s => String(s.id) === String(trigger.data('id')));
 
-                                <td>
-                                    <span class="group-badge">
-                                        ${item.code}
-                                    </span>
-                                </td>
-                                <td class="text-end">
-
-                                    <div class="action-buttons">
-
-                                         <button
-                                            type="button"
-                                            class="action-btn edit-btn"
-                                            data-id="${item.id}"
-                                        >
-                                            <i class="bi bi-pencil"></i>
-                                            Edit
-                                        </button>
-                                           <button
-                                            type="button"
-                                            class="action-btn delete-btn"
-                                            data-id="${item.id}"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                            Delete
-                                        </button>
-                                      
-                                    </div>
-
-                                </td>
-
-                            </tr>
-                      `;
-                     
-                      
-                    });
-                    $('#classesTableBody').html(tableRow);
-
-        },
-        error: function(xhr) {
-            console.log(xhr.responseJSON);
+        if (!item) {
+            showNotice('error', 'Subject details could not be found. Refresh the page and try again.');
+            return;
         }
 
+        $('#editId').val(item.id);
+        $('#subjectName').val(item.name || '');
+        $('#subjectCode').val(item.code || '');
+        $('#subjectModalTitle').text('Edit Subject');
+        $('#subjectModalSub').text('Update the subject details below');
+        setBusy($('#saveSubjectBtn'), false, '', UPDATE_HTML);
     });
-}
 
-//edit form
-    $(document).on('click','.edit-btn', function(){
-        const id = $(this).data('id');
-        console.log('editId: ',id);
-          $('#editId').val(id);
-            $.ajax({
-             url: '/api/subjects',
-        type: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Accept': 'application/json'
-        },
-        success:function(response){
+    $('#subjectForm').on('submit', function (event) {
+        event.preventDefault();
+        clearFieldErrors(this);
 
-            const givenSubjects = response;
-            let selectedSubject = '';
-            givenSubjects.forEach(item =>{
-                 selectedSubject = givenSubjects.find(item => item.id === id);
-            })
-        console.log("selectedSubject: ",selectedSubject);
-        $('#Name').val(selectedSubject.name);
-        $('#code').val(selectedSubject.code);
+        const form = this;
+        const id = $('#editId').val();
+        const normalHtml = id ? UPDATE_HTML : SAVE_HTML;
+        let invalid = false;
+
+        if (!$('#subjectName').val().trim()) { setFieldError(form, 'name', 'Please enter the subject name.'); invalid = true; }
+        if (!$('#subjectCode').val().trim()) { setFieldError(form, 'code', 'Please enter the subject code.'); invalid = true; }
+
+        if (invalid) return;
+
+        const formData = new FormData(form);
+        if (id) formData.append('_method', 'PUT');
+
+        const button = $('#saveSubjectBtn');
+        setBusy(button, true, id ? 'Updating...' : 'Saving...', normalHtml);
+
+        $.ajax({
+            url: id ? '/api/subjects/' + encodeURIComponent(id) : '/api/subjects',
+            type: 'POST',
+            headers: authHeaders(),
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('subjectModal')).hide();
+                loadSubjects();
+                showNotice('success', response.message || (id ? 'Subject updated successfully.' : 'Subject added successfully.'));
+            },
+            error: function (xhr) {
+                showServerErrors(form, xhr, id ? 'Unable to update the subject. Please try again.' : 'Unable to add the subject. Please try again.');
+            },
+            complete: function () {
+                setBusy(button, false, '', normalHtml);
+            }
+        });
+    });
+
+    // ---------- Delete (always asks first) ----------
+    $('#deleteSubjectModal').on('show.bs.modal', function (event) {
+        const trigger = $(event.relatedTarget).closest('.delete-btn');
+        const item = allSubjects.find(s => String(s.id) === String(trigger.data('id')));
+
+        $('#deleteSubjectId').val(trigger.data('id') || '');
+        $('#deleteSubjectName').text(item ? item.name : 'This subject');
+    });
+
+    $('#confirmDeleteSubject').on('click', function () {
+        const id = $('#deleteSubjectId').val();
+
+        if (!id) {
+            showNotice('error', 'Missing subject. Close this window and try again.');
+            return;
         }
-         });
 
+        const button = $(this).prop('disabled', true).text('Deleting...');
+
+        $.ajax({
+            url: '/api/subjects/' + encodeURIComponent(id),
+            type: 'DELETE',
+            headers: authHeaders(),
+            success: function (response) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteSubjectModal')).hide();
+                loadSubjects();
+                showNotice('success', response.message || 'Subject deleted successfully.');
+            },
+            error: function (xhr) {
+                showNotice('error', getErrorMessage(xhr, 'Unable to delete the subject. Please try again.'));
+            },
+            complete: function () {
+                button.prop('disabled', false).text('Delete');
+                $('#deleteSubjectId').val('');
+            }
+        });
     });
 
-
-    $('#Form').on('submit',function(e){
-            e.preventDefault();
-           const subjectId = document.getElementById('editId').value;
-           const formData = new FormData(this);
-           formData.append('_method', 'PUT');
-
-   $.ajax({
-             url: '/api/subjects/' + subjectId,
-        type: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Accept': 'application/json'
-        },
-        data:formData,
-        processData: false,
-contentType: false,
-        success:function(response){
-           console.log('updated successfully');
-            showResultModal(
-            'success',
-            'Updated',
-            ' updated successfully.'
-        );
-        // $('#Form').html()='';
-        window.location.href="/instituteAdmin/subjects";
-
-  
-
-        },
-         error: function(xhr) {
-
-        console.log('update failed');
-        console.log(xhr.responseJSON);
-
-        showResultModal(
-            'error',
-            'Update Failed',
-            'Please try again.'
-        );
-    }
-         });
-    
-    });
-    function showResultModal(type, title, message) {
-
-    const modal = $('#resultModal');
-    const icon = $('#resultModalIcon');
-    const modalTitle = $('#resultModalTitle');
-    const modalMessage = $('#resultModalMessage');
-
-    modal.removeClass('error');
-
-    if (type === 'success') {
-        icon.html('<i class="bi bi-check-lg"></i>');
-    } else {
-        modal.addClass('error');
-        icon.html('<i class="bi bi-x-lg"></i>');
-    }
-
-    modalTitle.text(title);
-    modalMessage.text(message);
-
-    modal.addClass('show');
-}
-$('#resultModalOk, #closeResultModal').on('click', function() {
-    $('#resultModal').removeClass('show');
-});
-
-// add modal
-
- $('#addForm').on('submit',function(e){
-            e.preventDefault();
-        //    const subjectId = document.getElementById('editId').value;
-           const formData = new FormData(this);
-
-   $.ajax({
-             url: '/api/subjects',
-        type: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Accept': 'application/json'
-        },
-        data:formData,
-        processData: false,
-        contentType: false,
-        success:function(response){
-           console.log('updated successfully');
-            showResultModal(
-            'success',
-            'created',
-            ' created successfully.'
-        );
-        // $('#Form').html()='';
-        window.location.href="/instituteAdmin/subjects";
-        },
-         error: function(xhr) {
-
-        console.log('update failed');
-        console.log(xhr.responseJSON);
-
-        showResultModal(
-            'error',
-            'create Failed',
-            'Please try again.'
-        );
-    }
-         });
-    
-    });
-   
-
-
-// delete 
- 
- $(document).on('click','.delete-btn', function(){
-        const id = $(this).data('id');
-            $.ajax({
-             url: '/api/subjects/' + id,
-        type: 'Delete',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Accept': 'application/json'
-        },
-        success:function(response){
-             showResultModal(
-            'success',
-            'Class Deleted',
-            ' Deleted successfully.',
-        window.location.href="/instituteAdmin/subjects",
-        );
-        },
-         error: function(xhr) {
-        console.log(xhr.responseJSON);
-        showResultModal(
-            'error',
-            'Delete Failed',
-            'Please try again.',
-        );
-    }
-         });
-    });
-$(document).ready(function() {
-    loadSubjects();
-});
-$(document).on('click','.edit-btn',function(){
-    document.querySelector('.class-form-card').scrollIntoView({
-       behaviour:'smooth',
-       block:'start'
-    });
-
-});
+    $(document).ready(loadSubjects);
 </script>
-    
 @endpush

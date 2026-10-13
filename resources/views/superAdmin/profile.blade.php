@@ -951,8 +951,6 @@ if (profileImageInput) {
     });
 
 }
-
-
 document.querySelectorAll('.password-toggle').forEach(function (button) {
 
     button.addEventListener('click', function () {

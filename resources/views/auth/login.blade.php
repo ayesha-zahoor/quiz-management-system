@@ -701,6 +701,9 @@
       else if(role === 'institute_admin') {
         window.location.href = '/instituteAdmin/dashboard';
     }
+    else if(role === 'teacher') {
+        window.location.href = '/teacher/dashboard';
+    }
       },
             error: function(xhr) {
 

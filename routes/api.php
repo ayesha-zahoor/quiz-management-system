@@ -66,9 +66,12 @@ Route::middleware(['auth:sanctum', 'institute.admin'])
         ]);
          Route::apiResource('classes', ClassController::class);
            Route::apiResource('subjects', SubjectController::class);
+    Route::get('/institute/profile', [ProfileController::class, 'show']);
            Route::post('teachers/{teacher}/classes', [TeacherClassController::class,'store']);
            Route::Get('teachers/{teacher}/classes', [TeacherClassController::class,'index']);
+           Route::delete('teachers/{teacher}/classes/{class}', [TeacherClassController::class, 'destroy']);
            Route::post('students/{student}/classes', [StudentClassController::class,'store']);
+
            Route::Get('students/{student}/classes', [StudentClassController::class,'index']);
     });
 
@@ -107,7 +110,7 @@ Route::middleware(['auth:sanctum', 'institute.admin'])
 
         // student
 
-         Route::get('/admingettingStudents', [
+         Route::get('/students', [
             StudentController::class,
             'index'
         ]);
@@ -163,6 +166,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/student/dashboard', [StudentDashboardController::class, 'index']);
 
 });
+// Route::middleware('auth:sanctum')->prefix('teacher')->group(function () {
+//     Route::get('/dashboard', [DashboardController::class, 'index']);
+// });
 Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
     Route::get('/teacher/quizzes', [QuizController::class, 'index']);
     Route::post('/teacher/quizzes', [QuizController::class, 'store']);
@@ -170,6 +176,7 @@ Route::middleware(['auth:sanctum', 'teacher'])->group(function () {
     Route::put('/teacher/quizzes/{quiz}', [QuizController::class, 'update']);
     Route::delete('/teacher/quizzes/{quiz}', [QuizController::class, 'destroy']);
     Route::put('/teacher/quizzes/{quiz}/publish', [QuizController::class, 'publish']);
+    Route::put('/teacher/quizzes/{quiz}/unpublish', [QuizController::class, 'unpublish']);
     // questions
      Route::post('/teacher/quizzes/{quiz}/questions', [QuestionController::class, 'store']);
     Route::get('/teacher/quizzes/{quiz}/questions', [QuestionController::class, 'index']);

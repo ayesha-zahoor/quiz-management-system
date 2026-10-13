@@ -12,32 +12,37 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-      public function index(Request $request)
-    {
-        $admin = $request->user();
+     public function index(Request $request)
+{
+    $admin = $request->user();
 
-        $query = User::with('role')
-            ->where('institute_id', $admin->institute_id)
-            ->whereHas('role', function ($query) {
-                $query->where('role_name', 'student');
-            })
-            ->latest();
-        if ($request->filled('search')) {
-            $search = $request->search;
+    $base = User::where('institute_id', $admin->institute_id)
+        ->whereHas('role', fn ($q) => $q->where('role_name', 'student'));
 
-            $query->where(function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-        $students = $query->paginate(15)->withQueryString();
-        return response()->json([
-            'success' => true,
-            'message' => 'Students retrieved successfully.',
-            'data' => $students
-        ]);
+    $stats = [
+        'total'          => (clone $base)->count(),
+        'new_this_month' => (clone $base)->where('created_at', '>=', now()->startOfMonth())->count(),
+    ];
+
+    $query = (clone $base)->with('studentClasses')->withCount('quizAttempts')->latest();
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('student_roll_no', 'like', "%{$search}%")
+              ->orWhereHas('studentClasses', fn ($c) => $c->where('class_name', 'like', "%{$search}%"));
+        });
     }
 
+    return response()->json([
+        'success' => true,
+        'message' => 'Students retrieved successfully.',
+        'data'    => $query->paginate(10)->withQueryString(),
+        'stats'   => $stats,
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -65,6 +70,10 @@ class StudentController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048'
             ],
+             'student_roll_no' => [
+                'nullable',
+                'string'
+            ],
         ]);
 
         $role = Role::where('role_name', 'student')->firstOrFail();
@@ -82,7 +91,7 @@ class StudentController extends Controller
             'password' => Hash::make($validated['password']),
             'role_id' => $role->id,
             'institute_id' => $admin->institute_id,
-            'student_roll_no' => null,
+            'student_roll_no' => $validated['student_roll_no'],
             'profile_image' => $profileImagePath,
         ]);
 
@@ -145,12 +154,22 @@ class StudentController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
+            
+            'password' => [
+                'nullable',
+                'string',
+                'min:8'
+            ],
 
             'profile_image' => [
-                'nullable',
+                'required',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048'
+            ],
+            'student_roll_no' => [
+                'required',
+                'string'
             ],
         ]);
 

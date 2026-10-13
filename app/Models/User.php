@@ -48,11 +48,11 @@ class User extends Authenticatable
         return $this->belongsTo(Institute::class,'institute_id');
     }
 
-    public function taughtClasses(): BelongsToMany
-    {
-        return $this->belongsToMany(AcademicClass::class, 'class_teacher', 'teacher_id', 'class_id')
-            ->withPivot('subject_name');
-    }
+    // public function taughtClasses(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(AcademicClass::class, 'class_teacher', 'teacher_id', 'class_id')
+    //         ->withPivot('subject_name');
+    // }
 
    public function studentClasses(): BelongsToMany
 {
