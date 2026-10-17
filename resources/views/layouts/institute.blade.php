@@ -638,8 +638,11 @@
                 <span>Teachers</span>
             </a>
 
+            <a href="/instituteAdmin/results" class=" nav-item {{ request()->is('instituteAdmin/results*') ? 'active' : '' }}">
+    <i class="bi bi-bar-chart-line"></i>
+     <span>Results</span>
+</a>
             <div class="sidebar-section-label">Account</div>
-
             <a href="#" id="profileLink"
                class="nav-item js-profile-link {{ request()->is('instituteAdmin/profile*') ? 'active' : '' }}">
                 <i class="bi bi-person-circle"></i>

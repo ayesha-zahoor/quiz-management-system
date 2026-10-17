@@ -29,6 +29,13 @@ public function editInstituteProfile($id)
     return view('InstituteAdmin.profile', compact('user'));
 }
 
+public function editTeacherProfile($id)
+{
+    $user = User::with('institute')->findOrFail($id);
+
+    return view('teacher.profile', compact('user'));
+}
+
      public function editProfile(String $id){
         $user = User::findOrFail($id);
         // $user = $request->user();

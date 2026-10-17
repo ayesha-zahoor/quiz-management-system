@@ -139,7 +139,7 @@
             <h2 class="qz-title">My Quizzes</h2>
             <p class="qz-subtitle">View and manage your assessments</p>
         </div>
-        <a href="/teacher/createQuiz" class="qz-btn primary">
+        <a href="/teacher/createQuiz" id="getClasses" class="qz-btn primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             New Quiz
         </a>
@@ -303,8 +303,17 @@ $(function () {
             success: function (res) {
                 console.log(res);
                 quizzes = res.data || [];
-                const teacherClasses = quizzes.academic_class;
-                console.log(res.data);
+                let  teacherClasses = '';
+                quizzes.forEach(quiz => {
+                    teacherClasses = quiz.academic_class;
+                    console.log(teacherClasses);
+                    
+                });
+//                $('#getClasses').on('click', function (e) {
+//     e.preventDefault();
+//     window.location.href = '/teacher/createQuiz/'+teacherClasses;
+// });
+                // console.log();
                 render();
             },
             error: function (xhr) {

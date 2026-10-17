@@ -15,16 +15,21 @@ use Illuminate\Http\Request;
  use App\Http\Controllers\Api\SuperAdmin\InstituteController;
 use App\Http\Controllers\Api\SuperAdmin\InstituteConfigurationController;
 use App\Http\Controllers\Api\SuperAdmin\UserController;
-    use App\Http\Controllers\Api\InstituteAdmin\TeacherController;
-    use App\Http\Controllers\Api\InstituteAdmin\StudentController;
-    use App\Http\Controllers\Api\InstituteAdmin\TeacherClassController;
-    use App\Http\Controllers\Api\InstituteAdmin\StudentClassController;
-    use App\Http\Controllers\Api\Teacher\QuizController;
-    use App\Http\Controllers\Api\Teacher\QuestionController;
-    use App\Http\Controllers\API\Teacher\OptionController;
-    use App\Http\Controllers\API\Student\QuizAttemptController;
-    use App\Http\Controllers\API\Student\StudentAnswerController;
-use App\Http\Controllers\API\Student\QuizController as StudentQuizController;
+use App\Http\Controllers\Api\InstituteAdmin\TeacherController;
+use App\Http\Controllers\Api\InstituteAdmin\StudentController;
+use App\Http\Controllers\Api\InstituteAdmin\TeacherClassController;
+use App\Http\Controllers\Api\InstituteAdmin\StudentClassController;
+use App\Http\Controllers\Api\Teacher\QuizController;
+use App\Http\Controllers\Api\Teacher\QuestionController;
+use App\Http\Controllers\Api\Teacher\OptionController;
+use App\Http\Controllers\Api\Student\QuizAttemptController;
+use App\Http\Controllers\Api\Student\StudentAnswerController;
+use App\Http\Controllers\Api\Student\SpeechController;
+use App\Http\Controllers\Api\Student\Studentprofilecontroller;
+ use App\Http\Controllers\Api\InstituteAdmin\InstituteresultController;
+ use App\Http\Controllers\Api\Teacher\TeacherResultController;
+
+use App\Http\Controllers\Api\Student\QuizController as StudentQuizController;
 
 
 
@@ -73,6 +78,7 @@ Route::middleware(['auth:sanctum', 'institute.admin'])
            Route::post('students/{student}/classes', [StudentClassController::class,'store']);
 
            Route::Get('students/{student}/classes', [StudentClassController::class,'index']);
+           Route::get('/instituteAdmin/results', [InstituteresultController::class, 'index']);
     });
 
 Route::middleware(['auth:sanctum', 'institute.admin'])
@@ -194,6 +200,8 @@ Route::delete('/teacher/questions/{question}', [QuestionController::class, 'dest
 Route::put('/teacher/options/{option}', [OptionController::class, 'update']);
 
 Route::delete('/teacher/options/{option}', [OptionController::class, 'destroy']);
+Route::get('/teacher/results', [TeacherResultController::class, 'index']);
+Route::get('/teacher/results/{quiz}', [TeacherResultController::class, 'show']);
 
     
 });
@@ -204,4 +212,13 @@ Route::middleware(['auth:sanctum', 'student'])->group(function () {
     Route::post('/student/quizzesAttempt', [StudentAnswerController::class, 'store']);
     Route::post('/student/submit-quiz', [StudentAnswerController::class, 'submit']);
     Route::get('/student/result-quiz/{quiz}', [StudentAnswerController::class, 'result']);
+    // Route::get('/result-quiz/{attempt}', [StudentQuizController::class, 'result'])
+        // ->name('student.result-quiz');
+    Route::get(
+    '/student/attempts/{attemptId}',
+    [QuizAttemptController::class, 'show']);
+    Route::post('/student/speech', [SpeechController::class, 'speak']);
+    Route::get('/student/profile', [Studentprofilecontroller::class, 'show']);
+   Route::post('/student/profile', [Studentprofilecontroller::class, 'update']);
+   Route::put('/student/profile/password', [Studentprofilecontroller::class, 'updatePassword']);
 });

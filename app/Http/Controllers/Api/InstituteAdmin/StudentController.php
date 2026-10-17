@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\InstituteAdmin;
+namespace App\Http\Controllers\Api\InstituteAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
@@ -70,10 +70,15 @@ class StudentController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048'
             ],
-             'student_roll_no' => [
-                'nullable',
-                'string'
-            ],
+            'student_roll_no' => [
+    'nullable',
+    'string'
+],
+            
+            'class_id' => [
+    'required',
+    Rule::exists('classes', 'id')->where('institute_id', $admin->institute_id),
+],
         ]);
 
         $role = Role::where('role_name', 'student')->firstOrFail();
@@ -91,9 +96,10 @@ class StudentController extends Controller
             'password' => Hash::make($validated['password']),
             'role_id' => $role->id,
             'institute_id' => $admin->institute_id,
-            'student_roll_no' => $validated['student_roll_no'],
+             'student_roll_no' => $validated['student_roll_no'] ?? null,
             'profile_image' => $profileImagePath,
         ]);
+        $student->studentClasses()->sync([$validated['class_id']]);
 
         return response()->json([
             'success' => true,
@@ -162,15 +168,19 @@ class StudentController extends Controller
             ],
 
             'profile_image' => [
-                'required',
+                'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048'
             ],
             'student_roll_no' => [
-                'required',
+                'nullable',
                 'string'
             ],
+            'class_id' => [
+    'required',
+    Rule::exists('classes', 'id')->where('institute_id', $admin->institute_id),
+],
         ]);
 
         if ($request->hasFile('profile_image')) {
@@ -186,7 +196,17 @@ class StudentController extends Controller
                 ->store('profile_images', 'public');
         }
 
-        $user->update($validated);
+        $classId = $validated['class_id'];
+unset($validated['class_id']);
+
+if (!empty($validated['password'])) {
+    $validated['password'] = Hash::make($validated['password']);
+} else {
+    unset($validated['password']);
+}
+
+$user->update($validated);
+$user->studentClasses()->sync([$classId]);
 
         return response()->json([
             'success' => true,

@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\API\Teacher;
+namespace App\Http\Controllers\Api\Teacher;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Quiz;
+use App\Models\Question;
 use App\Models\SchoolClass;
 use App\Models\Subject;
-use Illuminate\Http\Request;
+
 
 class QuizController extends Controller
 {
-   public function index(Request $request)
+    public function index(Request $request)
 {
     $teacher = $request->user();
 
@@ -91,7 +93,7 @@ public function unpublish(Request $request, Quiz $quiz)
     
 }
 public function show(Request $request, Quiz $quiz){
-    $teacher = $request->teacher();
+    $teacher = $request->user();
     if($quiz->institute_id !=$teacher->institute_id||$quiz->created_by != $teacher->id){
         return response()->json([
             'status'=>false,
@@ -246,5 +248,53 @@ public function destroy(Request $request, Quiz $quiz){
             'message'=>'quiz  has been deleted',
         ]);
 
+}
+public function results(Request $request, Quiz $quiz)
+{
+    $teacher = $request->user();
+
+    abort_unless(
+        $quiz->institute_id === $teacher->institute_id && $quiz->teacher_id === $teacher->id,
+        404
+    );
+
+    $total = max((int) $quiz->total_marks, 1);
+
+    $attempts = QuizAttempt::with('student:id,name,student_roll_no')
+        ->where('quiz_id', $quiz->id)
+        ->where('status', 'completed')
+        ->latest()
+        ->get();
+
+    $rows = $attempts->map(fn ($a) => [
+        'student'    => $a->student?->name,
+        'roll_no'    => $a->student?->student_roll_no,
+        'score'      => $a->score,
+        'percentage' => round($a->score / $total * 100, 1),
+        'result'     => $a->score >= $quiz->pass_marks ? 'Passed' : 'Failed',
+        'date'       => $a->updated_at,
+    ]);
+
+    // Students in the quiz's class who have not finished it
+    $classStudentIds = DB::table('class_student')->where('class_id', $quiz->class_id)->pluck('student_id');
+    $pending = User::whereIn('id', $classStudentIds)
+        ->whereNotIn('id', $attempts->pluck('student_id'))
+        ->get(['id', 'name', 'student_roll_no']);
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'quiz'    => $quiz->only('id', 'title', 'total_marks', 'pass_marks'),
+            'stats'   => [
+                'attempts'  => $rows->count(),
+                'average'   => round($rows->avg('percentage') ?? 0, 1),
+                'highest'   => $rows->max('percentage') ?? 0,
+                'lowest'    => $rows->min('percentage') ?? 0,
+                'pass_rate' => $rows->count() ? round($rows->where('result', 'Passed')->count() / $rows->count() * 100) : 0,
+            ],
+            'results' => $rows->values(),
+            'pending' => $pending,
+        ],
+    ]);
 }
 }

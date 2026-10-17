@@ -41,6 +41,17 @@ class DashboardController extends Controller
             ->with('institute')
             ->orderBy('sort_order')
             ->get();
+            $byClass = DB::table('quiz_attempts as a')
+    ->join('quizzes as q', 'q.id', '=', 'a.quiz_id')
+    ->join('classes as c', 'c.id', '=', 'q.class_id')
+    ->where('q.institute_id', $admin->institute_id)
+    ->where('a.status', 'completed')
+    ->selectRaw('c.id, c.class_name,
+        COUNT(*) AS attempts,
+        ROUND(AVG(a.score / NULLIF(q.total_marks,0) * 100), 1) AS avg_percentage,
+        ROUND(SUM(a.score >= q.pass_marks) / COUNT(*) * 100) AS pass_rate')
+    ->groupBy('c.id', 'c.class_name')
+    ->get();
         //  dd($assignments);
         return response()->json([
             'success' => true,
@@ -53,6 +64,8 @@ class DashboardController extends Controller
                 'instituteConfiguration' => $instituteConfiguration,
                 'institute' => $institute,
                 'assignments' => $assignments,
+                'byClass' => $byClass,
+
 
             ]
         ]);

@@ -704,6 +704,9 @@
     else if(role === 'teacher') {
         window.location.href = '/teacher/dashboard';
     }
+     else if(role === 'student') {
+        window.location.href = '/student/dashboard';
+    }
       },
             error: function(xhr) {
 

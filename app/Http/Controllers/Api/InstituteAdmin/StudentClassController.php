@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\InstituteAdmin;
+namespace App\Http\Controllers\Api\InstituteAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SchoolClass;

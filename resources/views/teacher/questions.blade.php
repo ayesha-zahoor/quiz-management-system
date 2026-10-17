@@ -77,15 +77,45 @@
                         <label for="questionMarks" class="form-label fw-semibold">Marks</label>
                         <input type="number" id="questionMarks" class="form-control" min="1" value="1" required>
                     </div>
+                </div>
 
-                    <div class="col-md-8">
-                        <label for="questionImage" class="form-label fw-semibold">Image link <small class="text-secondary fw-normal">(optional)</small></label>
-                        <input type="text" id="questionImage" class="form-control" maxlength="255" placeholder="https://...">
+                <div class="row g-3 mt-0">
+                    {{-- Picture --}}
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Picture <small class="text-secondary fw-normal">(optional)</small></label>
+
+                        <div class="upload">
+                            <img id="questionImagePreview" class="upload-img" alt="Picture preview" hidden>
+
+                            <div class="upload-row">
+                                <label for="questionImage" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-upload me-1"></i><span id="questionImageLabel">Choose picture</span>
+                                </label>
+                                <button type="button" class="btn btn-sm btn-link text-danger" id="questionImageRemove" hidden>Remove</button>
+                            </div>
+
+                            <input type="file" class="visually-hidden" id="questionImage" accept="image/png,image/jpeg,image/webp">
+                            <div class="upload-help">JPG, PNG or WebP, up to 2 MB.</div>
+                        </div>
                     </div>
 
-                    <div class="col-12">
-                        <label for="questionAudio" class="form-label fw-semibold">Audio link <small class="text-secondary fw-normal">(optional, read-aloud)</small></label>
-                        <input type="text" id="questionAudio" class="form-control" maxlength="255" placeholder="https://...">
+                    {{-- Audio --}}
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Read-aloud audio <small class="text-secondary fw-normal">(optional)</small></label>
+
+                        <div class="upload">
+                            <audio id="questionAudioPreview" controls hidden></audio>
+
+                            <div class="upload-row">
+                                <label for="questionAudio" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-upload me-1"></i><span id="questionAudioLabel">Choose audio</span>
+                                </label>
+                                <button type="button" class="btn btn-sm btn-link text-danger" id="questionAudioRemove" hidden>Remove</button>
+                            </div>
+
+                            <input type="file" class="visually-hidden" id="questionAudio" accept="audio/*">
+                            <div class="upload-help">MP3, WAV, OGG or M4A, up to 5 MB. Students hear this when they press Listen. Record the question in Urdu here if you want it read in Urdu.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -122,8 +152,21 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="optionImage" class="form-label fw-semibold">Image link <small class="text-secondary fw-normal">(optional)</small></label>
-                    <input type="text" id="optionImage" class="form-control" maxlength="255" placeholder="https://...">
+                    <label class="form-label fw-semibold">Picture <small class="text-secondary fw-normal">(optional)</small></label>
+
+                    <div class="upload">
+                        <img id="optionImagePreview" class="upload-img" alt="Picture preview" hidden>
+
+                        <div class="upload-row">
+                            <label for="optionImage" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-upload me-1"></i><span id="optionImageLabel">Choose picture</span>
+                            </label>
+                            <button type="button" class="btn btn-sm btn-link text-danger" id="optionImageRemove" hidden>Remove</button>
+                        </div>
+
+                        <input type="file" class="visually-hidden" id="optionImage" accept="image/png,image/jpeg,image/webp">
+                        <div class="upload-help">JPG, PNG or WebP, up to 2 MB.</div>
+                    </div>
                 </div>
 
                 <div class="form-check">
@@ -151,7 +194,7 @@
             <div class="modal-body text-center p-4">
                 <div class="confirm-icon danger"><i class="bi bi-trash"></i></div>
                 <h5>Delete <span id="deleteKind">question</span>?</h5>
-                <p class="text-secondary mb-4"><strong id="deleteLabel"></strong> will be removed permanently.</p>
+                <p class="text-secondary mb-4"><strong id="deleteLabel"></strong> will be removed permanently, together with its picture and audio.</p>
 
                 <div id="deleteError" class="form-error mb-3"></div>
 
@@ -259,7 +302,7 @@
 
     .q-media { margin-top: 12px; }
     .q-media img { max-width: 100%; max-height: 160px; border-radius: 12px; border: 1px solid rgba(15, 23, 42, 0.08); }
-    .q-media audio { width: 100%; max-width: 380px; margin-top: 8px; }
+    .q-media audio { display: block; width: 100%; max-width: 380px; margin-top: 8px; }
 
     .q-actions { display: flex; gap: 8px; }
 
@@ -297,9 +340,17 @@
     .option.correct > i { color: #16a34a; }
     .option-text { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 15px; }
     .option-badge { padding: 2px 9px; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 11px; font-weight: 700; }
-    .option-img { height: 34px; width: 34px; object-fit: cover; border-radius: 8px; }
+    .option-img { height: 44px; width: 44px; object-fit: cover; border-radius: 8px; }
 
     .option-hint { color: var(--slate); font-size: 13px; padding: 4px 0 10px; }
+
+    /* ---------- Upload boxes ---------- */
+    .upload { padding: 12px; border: 1px dashed rgba(15, 23, 42, 0.2); border-radius: 14px; background: rgba(255, 255, 255, 0.6); }
+    .upload-img { display: block; max-width: 100%; max-height: 150px; margin-bottom: 10px; border-radius: 10px; border: 1px solid rgba(15, 23, 42, 0.08); }
+    .upload audio { display: block; width: 100%; margin-bottom: 10px; }
+    .upload-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .upload-help { margin-top: 8px; color: var(--slate); font-size: 12px; line-height: 1.5; }
+    .upload:focus-within { border-color: var(--primary-color); }
 
     /* ---------- Modals ---------- */
     .form-error { margin-top: 12px; color: #dc2626; font-size: 13px; }
@@ -329,7 +380,7 @@
 @push('scripts')
 <script>
     // The quiz id comes from the page address: /teacher/quizzes/{id}/questions
-    const quizId = {{ (int) $quiz}};
+    const quizId = {{ (int) $quiz }};
 
     let quiz = {};            // the quiz (title, status, marks)
     let questions = [];       // its questions, each with its options
@@ -353,6 +404,30 @@
         });
 
         const data = await response.json().catch(function () { return {}; });
+
+        if (!response.ok) {
+            throw { status: response.status, data: data };
+        }
+
+        return data;
+    }
+
+    // Same, but sends a form with files. Browsers cannot send files with PUT,
+    // so an update is sent as POST with _method=PUT (the same way the student form does it).
+    async function apiForm(method, url, formData) {
+        if (method === 'PUT') formData.append('_method', 'PUT');
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + window.token, 'Accept': 'application/json' },   // no Content-Type: the browser adds it
+            body: formData
+        });
+
+        const data = await response.json().catch(function () { return {}; });
+
+        if (response.status === 413) {
+            throw { status: 413, data: { message: 'The file is too large for the server. Please choose a smaller file.' } };
+        }
 
         if (!response.ok) {
             throw { status: response.status, data: data };
@@ -410,6 +485,92 @@
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+
+    /* ---------------------------------------------------------------
+       Picture and audio upload boxes
+       Each box can: choose a new file, show a preview (also of the file already saved), and remove it.
+    --------------------------------------------------------------- */
+
+    const FIELDS = {
+        questionImage: { kind: 'image', error: 'questionError', noun: 'picture' },
+        questionAudio: { kind: 'audio', error: 'questionError', noun: 'audio' },
+        optionImage:   { kind: 'image', error: 'optionError',   noun: 'picture' }
+    };
+
+    const FILE_RULES = {
+        image: { maxMb: 2, types: ['image/jpeg', 'image/png', 'image/webp'], hint: 'a JPG, PNG or WebP picture' },
+        audio: { maxMb: 5, hint: 'an audio file (MP3, WAV, OGG or M4A)' }
+    };
+
+    const removeFlags = { questionImage: false, questionAudio: false, optionImage: false };   // true = delete the saved file
+    const blobUrls = {};                                                                      // temporary previews to clean up
+
+    function setPreview(field, url) {
+        const preview = byId(field + 'Preview');
+        const label = byId(field + 'Label');
+
+        if (blobUrls[field] && blobUrls[field] !== url) {
+            URL.revokeObjectURL(blobUrls[field]);
+            blobUrls[field] = null;
+        }
+
+        if (url) {
+            preview.src = url;
+        } else {
+            preview.removeAttribute('src');
+            if (preview.load) preview.load();
+        }
+
+        preview.hidden = !url;
+        byId(field + 'Remove').hidden = !url;
+        label.textContent = (url ? 'Change ' : 'Choose ') + FIELDS[field].noun;
+    }
+
+    // Empties the box and shows the file that is already saved, if there is one
+    function resetFileField(field, savedUrl) {
+        byId(field).value = '';
+        removeFlags[field] = false;
+        setPreview(field, safeUrl(savedUrl));
+    }
+
+    function pickFile(field) {
+        const config = FIELDS[field];
+        const rules = FILE_RULES[config.kind];
+        const input = byId(field);
+        const file = input.files[0];
+
+        if (!file) return;
+
+        const tooBig = file.size > rules.maxMb * 1024 * 1024;
+        const wrongType = config.kind === 'image' ? rules.types.indexOf(file.type) === -1 : file.type.indexOf('audio/') !== 0;
+
+        if (tooBig || wrongType) {
+            input.value = '';
+            byId(config.error).textContent = tooBig
+                ? 'That file is too large. The limit is ' + rules.maxMb + ' MB.'
+                : 'Please choose ' + rules.hint + '.';
+            return;
+        }
+
+        byId(config.error).textContent = '';
+        removeFlags[field] = false;
+
+        const url = URL.createObjectURL(file);
+        setPreview(field, url);
+        blobUrls[field] = url;
+    }
+
+    function clearFile(field) {
+        byId(field).value = '';
+        removeFlags[field] = true;
+        setPreview(field, '');
+    }
+
+    Object.keys(FIELDS).forEach(function (field) {
+        byId(field).addEventListener('change', function () { pickFile(field); });
+        byId(field + 'Remove').addEventListener('click', function () { clearFile(field); });
+    });
 
 
     /* ---------------------------------------------------------------
@@ -484,7 +645,7 @@
         html += '<i class="bi ' + (correct ? 'bi-check-circle-fill' : 'bi-circle') + '"></i>';
 
         if (image) {
-            html += '<img class="option-img" src="' + esc(image) + '" alt="">';
+            html += '<a href="' + esc(image) + '" target="_blank" rel="noopener"><img class="option-img" src="' + esc(image) + '" alt=""></a>';
         }
 
         html += '<span class="option-text">' + esc(option.option_text) + '</span>';
@@ -514,8 +675,8 @@
 
         if (image || audio) {
             html += '<div class="q-media">';
-            if (image) html += '<img src="' + esc(image) + '" alt="Question image">';
-            if (audio) html += '<audio controls src="' + esc(audio) + '"></audio>';
+            if (image) html += '<a href="' + esc(image) + '" target="_blank" rel="noopener"><img src="' + esc(image) + '" alt="Question picture"></a>';
+            if (audio) html += '<audio controls preload="none" src="' + esc(audio) + '"></audio>';
             html += '</div>';
         }
 
@@ -578,10 +739,12 @@
         byId('questionId').value = question ? question.id : '';
         byId('questionText').value = question ? question.question_text : '';
         byId('questionMarks').value = question ? question.marks_per_question : 1;
-        byId('questionImage').value = question && question.image_url ? question.image_url : '';
-        byId('questionAudio').value = question && question.tts_audio_url ? question.tts_audio_url : '';
         byId('questionError').textContent = '';
         byId('questionModalTitle').textContent = question ? 'Edit Question' : 'Add Question';
+
+        // A file box cannot be filled with a link, so it shows the saved file as a preview instead
+        resetFileField('questionImage', question ? question.image_url : '');
+        resetFileField('questionAudio', question ? question.tts_audio_url : '');
 
         showModal('questionModal');
     }
@@ -591,22 +754,28 @@
 
         const id = byId('questionId').value;
         const button = byId('questionSaveBtn');
+        const image = byId('questionImage').files[0];
+        const audio = byId('questionAudio').files[0];
 
-        const body = {
-            question_text: byId('questionText').value.trim(),
-            marks_per_question: Number(byId('questionMarks').value),
-            image_url: byId('questionImage').value.trim() || null,
-            tts_audio_url: byId('questionAudio').value.trim() || null
-        };
+        const form = new FormData();
+        form.append('question_text', byId('questionText').value.trim());
+        form.append('marks_per_question', byId('questionMarks').value);
+
+        if (image) form.append('image', image);
+        else if (removeFlags.questionImage) form.append('remove_image', '1');
+
+        if (audio) form.append('audio', audio);
+        else if (removeFlags.questionAudio) form.append('remove_audio', '1');
 
         button.disabled = true;
+        button.textContent = (image || audio) ? 'Uploading...' : 'Saving...';
         byId('questionError').textContent = '';
 
         try {
             if (id) {
-                await api('PUT', '/api/teacher/questions/' + id, body);
+                await apiForm('PUT', '/api/teacher/questions/' + id, form);
             } else {
-                await api('POST', '/api/teacher/quizzes/' + quizId + '/questions', body);
+                await apiForm('POST', '/api/teacher/quizzes/' + quizId + '/questions', form);
             }
 
             hideModal('questionModal');
@@ -617,6 +786,7 @@
         }
 
         button.disabled = false;
+        button.textContent = 'Save Question';
     }
 
 
@@ -635,10 +805,11 @@
         byId('optionQuestionId').value = questionId;
         byId('optionId').value = option ? option.id : '';
         byId('optionText').value = option ? option.option_text : '';
-        byId('optionImage').value = option && option.image_url ? option.image_url : '';
         byId('optionCorrect').checked = option ? isTrue(option.is_correct) : false;
         byId('optionError').textContent = '';
         byId('optionModalTitle').textContent = option ? 'Edit Option' : 'Add Option';
+
+        resetFileField('optionImage', option ? option.image_url : '');
 
         showModal('optionModal');
     }
@@ -650,6 +821,7 @@
         const optionId = byId('optionId').value;
         const wantsCorrect = byId('optionCorrect').checked;
         const button = byId('optionSaveBtn');
+        const image = byId('optionImage').files[0];
 
         // A question can only have one correct answer
         const options = findQuestion(questionId).options || [];
@@ -662,20 +834,22 @@
             return;
         }
 
-        const body = {
-            option_text: byId('optionText').value.trim(),
-            image_url: byId('optionImage').value.trim() || null,
-            is_correct: wantsCorrect
-        };
+        const form = new FormData();
+        form.append('option_text', byId('optionText').value.trim());
+        form.append('is_correct', wantsCorrect ? '1' : '0');
+
+        if (image) form.append('image', image);
+        else if (removeFlags.optionImage) form.append('remove_image', '1');
 
         button.disabled = true;
+        button.textContent = image ? 'Uploading...' : 'Saving...';
         byId('optionError').textContent = '';
 
         try {
             if (optionId) {
-                await api('PUT', '/api/teacher/options/' + optionId, body);
+                await apiForm('PUT', '/api/teacher/options/' + optionId, form);
             } else {
-                await api('POST', '/api/teacher/questions/' + questionId + '/options', body);
+                await apiForm('POST', '/api/teacher/questions/' + questionId + '/options', form);
             }
 
             hideModal('optionModal');
@@ -686,6 +860,7 @@
         }
 
         button.disabled = false;
+        button.textContent = 'Save Option';
     }
 
 

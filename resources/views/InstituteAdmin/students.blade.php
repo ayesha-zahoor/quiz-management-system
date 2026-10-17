@@ -416,14 +416,15 @@
         return response?.message || fallback;
     }
 
-    function responseItems(response) {
-        const payload = response?.data;
+ function responseItems(response) {
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response?.data?.data)) return response.data.data;
+    if (Array.isArray(response?.classes)) return response.classes;
+    if (Array.isArray(response?.data?.classes)) return response.data.classes;
 
-        if (Array.isArray(payload)) return payload;
-        if (Array.isArray(payload?.data)) return payload.data;
-
-        return [];
-    }
+    return [];
+}
 
     function studentClassList(student) {
         return student.student_classes || [];
@@ -453,20 +454,22 @@
                 'Authorization': 'Bearer ' + token,
                 'Accept': 'application/json'
             },
-            success: function (response) {
-                let options = '<option value="">Select Class</option>';
+           success: function (response) {
+    const classes = responseItems(response);
 
-                responseItems(response).forEach(function (item) {
-                    const name = item.class_name || item.name || 'Class';
-                    options += `<option value="${item.id}">${escapeHtml(name)}</option>`;
-                });
+    console.log('Parsed classes:', classes);
+    console.log('Dropdown before update:', $('#studentClass').length);
 
-                $('#studentClass').html(options);
+    let options = '<option value="">Select Class</option>';
 
-                if (selectedId) {
-                    $('#studentClass').val(String(selectedId));
-                }
-            },
+    classes.forEach(function (item) {
+        options += `<option value="${item.id}">${escapeHtml(item.class_name)}</option>`;
+    });
+
+    $('#studentClass').html(options);
+
+    console.log('Dropdown options after update:', $('#studentClass option').length);
+},
             error: function (xhr) {
                 showStudentMessage('error', getStudentError(xhr, 'Unable to load classes.'));
             }

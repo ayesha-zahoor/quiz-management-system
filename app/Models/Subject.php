@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subject extends Model
 {
@@ -13,11 +12,10 @@ class Subject extends Model
         'name',
         'code',
     ];
-    
 
     public function institute(): BelongsTo
     {
-        return $this->belongsTo(Institute::class);
+        return $this->belongsTo(Institute::class, 'institute_id');
     }
 
     public function classes(): BelongsToMany
@@ -40,8 +38,8 @@ class Subject extends Model
         )->withPivot('class_id');
     }
 
-    public function quizzes()
+    public function quizzes(): HasMany
     {
-        return $this->hasMany(Quiz::class);
+        return $this->hasMany(Quiz::class, 'subject_id');
     }
 }

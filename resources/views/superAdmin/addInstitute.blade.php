@@ -7,15 +7,15 @@
 @section('sidebar')
     <div class="sidebar-section-label">Main</div>
 
-    <a href="/superAdmin/dashboard" class="nav-item">
+    <a href="/superAdmin/dashboard" class="nav-item active">
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </a>
 
-    <a href="/superadmin/addInstitute" class="nav-item active">
+    <!-- <a href="/superadmin/addInstitute" class="nav-item active">
         <i class="bi bi-building-add"></i>
         <span>Add institute</span>
-    </a>
+    </a> -->
 
     <a href="#" id="profileLink" class="nav-item">
         <i class="bi bi-person-circle"></i>

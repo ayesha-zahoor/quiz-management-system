@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Student;
+namespace App\Http\Controllers\Api\Student;
 use App\Models\QuizAttempt;
 use App\Models\Question;
 use App\Models\Option;
@@ -120,6 +120,12 @@ class StudentAnswerController extends Controller
         // dd($quiz->id);
         
         $quizAttempt = QuizAttempt::where('quiz_id',$quiz->id)->where('student_id',$student->id)->where('status','completed')->first();
+        if (!$quizAttempt) {
+    return response()->json([
+        'status' => false,
+        'message' => 'No completed attempt found for this quiz.'
+    ], 404);
+}
         $score=$quizAttempt->score;
         // dd($score);
         return response()->json([

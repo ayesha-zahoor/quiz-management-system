@@ -18,7 +18,7 @@
             <p>Here's what's happening with your quizzes today.</p>
 
             <div class="td-hero-actions">
-                <a href="/teacher/quizzes/create" class="td-btn solid"><i class="bi bi-plus-lg"></i> Create New Quiz</a>
+                <a href="/teacher/createQuiz" class="td-btn solid"><i class="bi bi-plus-lg"></i> Create New Quiz</a>
                 <a href="/teacher/quizzes" class="td-btn ghost"><i class="bi bi-collection"></i> Manage Quizzes</a>
             </div>
         </div>
@@ -162,7 +162,7 @@
                 <h5 class="side-title">Quick Actions</h5>
 
                 <div class="quick">
-                    <a href="/teacher/quizzes/create" class="quick-link">
+                    <a href="/teacher/createQuiz" class="quick-link">
                         <span class="quick-ico"><i class="bi bi-plus-circle"></i></span>
                         <span><strong>Create a Quiz</strong><small>Start a new assessment</small></span>
                         <i class="bi bi-chevron-right"></i>

@@ -355,10 +355,14 @@
         <a href="/teacher/createQuiz" class="{{ request()->is('teacher/quizzes/create') ? 'active' : '' }}">
             <i class="bi bi-plus-circle"></i> Create Quiz
         </a>
-
-        <a href="/teacher/profile" class="{{ request()->is('teacher/profile*') ? 'active' : '' }}">
-            <i class="bi bi-person-circle"></i> My Profile
-        </a>
+          <a href="/teacher/results" class="{{ request()->is('teacher/results*') ? 'active' : '' }}">
+      <i class="bi bi-bar-chart-line"></i> Results
+  </a>
+          <a href="#" id="sidebarProfileLink"
+              class="{{ request()->is('teacher/profile*') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i>
+                <span>Profile</span>
+            </a>
     </nav>
 
     <div class="teacher-sidebar-footer">
@@ -396,7 +400,7 @@
             </div>
         </div>
 
-        <a href="/teacher/profile" class="topbar-profile" title="View your profile">
+        <a href="#" id="topbarProfileLink" class="topbar-profile" title="View your profile">
             <div class="avatar-sm">
                 <span id="teacherTopbarInitials">T</span>
                 <img id="teacherProfileImage" src="" alt="Teacher profile" class="d-none">
@@ -495,6 +499,16 @@
         const data = response.data || {};
         const teacher = data.teacher || data.user || data.profile || {};
         const institute = data.institute || {};
+        const teacherId = teacher.id;
+
+// const teacherId = teacher.id;
+
+if (teacherId) {
+    const profileUrl = '/teacher/profile/' + encodeURIComponent(teacherId);
+
+    $('#sidebarProfileLink').attr('href', profileUrl);
+    $('#topbarProfileLink').attr('href', profileUrl);
+}
         const configuration = data.configuration || institute.configuration || null;
         const name = teacher.name || data.teacher_name || 'Teacher';
         const ui = window.teacherUi;
@@ -510,6 +524,8 @@
         if (configuration) {
             window.applyTeacherTheme(configuration);
             localStorage.setItem('teacher_config', JSON.stringify(configuration));
+            
+        
         }
 
         // Kept for pages that still listen for it

@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
  use App\Http\Controllers\Api\SuperAdmin\InstituteController;
+ use App\Http\Controllers\Api\Teacher\TeacherResultController;
+ use App\Models\Quiz;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -61,3 +63,21 @@ Route::get('/teacher/createQuiz', function () {
 //         'data' => $request->user()->teachingClasses()->get()
 //     ]);
 // });
+     Route::get('/teacher/profile/{id}', [ProfileController::class, 'editTeacherProfile']);
+    //  students module
+      Route::get('/student/quizzes', function () {
+    return view('student.quizzes');
+
+});
+Route::get('/student/takeQuiz/{attemptId}', function ($attemptId) {
+    return view('student.takeQuiz', compact('attemptId'));
+})->name('student.takeQuiz');
+Route::get('/student/result-quiz/{quiz}', function (Quiz $quiz) {
+    return view('student.result-quiz', compact('quiz'));
+});
+Route::view('/student/dashboard', 'student.dashboard');
+Route::view('/student/results', 'student.results');
+Route::view('/teacher/results', 'teacher.results');
+Route::get('/teacher/results/{quiz}', fn ($quiz) => view('teacher.result-detail', ['quizId' => $quiz]));
+Route::view('/instituteAdmin/results', 'InstituteAdmin.results');
+   Route::view('/student/profile', 'student.profile');

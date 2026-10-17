@@ -1,13 +1,15 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentAnswer extends Model
 {
-    protected $fillable = ['attempt_id', 'question_id', 'selected_option_id'];
+    protected $fillable = [
+        'attempt_id',
+        'question_id',
+        'selected_option_id',
+    ];
 
     public function attempt(): BelongsTo
     {
@@ -16,12 +18,11 @@ class StudentAnswer extends Model
 
     public function question(): BelongsTo
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class, 'question_id');
     }
 
     public function option(): BelongsTo
     {
         return $this->belongsTo(Option::class, 'selected_option_id');
     }
-
 }
