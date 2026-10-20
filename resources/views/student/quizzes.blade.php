@@ -270,6 +270,7 @@ $(function () {
     let filters = { status: 'all', subject: 'all' };
 
 
+
     /* ---------------------------------------------------------------
        Words that change with the style
     --------------------------------------------------------------- */
@@ -295,6 +296,13 @@ $(function () {
     /* ---------------------------------------------------------------
        Institute theme, institute logo and student (unchanged behaviour)
     --------------------------------------------------------------- */
+        function fixUrl(path) {
+    if (!path) return '';
+    if (/^(https?:)?\/\//i.test(path) || path.startsWith('data:')) return path;  // already a full URL
+    path = path.replace(/^\/+/, '');
+    if (!path.startsWith('storage/')) path = 'storage/' + path;
+    return '/' + path;
+}
 
     function applyConfiguration(config) {
         if (!config) return;
@@ -330,7 +338,7 @@ $(function () {
         $('#instituteLogoPlaceholder').text(initialsOf(institute.name, 'IN'));
 
         if (institute.logo) {
-            $('#studentInstituteLogo').attr('src', institute.logo).removeClass('d-none');
+           $('#studentInstituteLogo').attr('src', fixUrl(institute.logo)).removeClass('d-none');
             $('#instituteLogoPlaceholder').addClass('d-none');
 
             $('#studentInstituteLogo').off('error').on('error', function () {
@@ -352,7 +360,8 @@ $(function () {
         $('#studentAvatarInitials').text(initialsOf(name, 'ST'));
 
         if (student.profile_image) {
-            $('#studentAvatarImage').attr('src', student.profile_image).removeClass('d-none');
+        $('#studentAvatarImage').attr('src', fixUrl(student.profile_image)).removeClass('d-none');
+
             $('#studentAvatarInitials').addClass('d-none');
 
             $('#studentAvatarImage').off('error').on('error', function () {

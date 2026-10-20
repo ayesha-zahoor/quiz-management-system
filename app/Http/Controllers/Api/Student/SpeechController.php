@@ -37,7 +37,11 @@ class SpeechController extends Controller
             try {
                 $text = $this->translateToUrdu($text);
             } catch (\Throwable $e) {
-                report($e);
+                 \Log::error("transaction failed". $e->getMessage(),[
+                    'class'=>get_class($e),
+                    'file'=>getFile().':'.$e->getLine(),
+                 ]);
+                // report($e);
 
                 return response()->json(['success' => false, 'message' => 'Translation is unavailable right now.'], 502);
             }
