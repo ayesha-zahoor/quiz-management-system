@@ -11,6 +11,10 @@
         <i class="bi bi-grid-1x2-fill"></i>
         <span>Dashboard</span>
     </a>
+          <a href="/superAdmin/permissions" class="nav-item " aria-current="page">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>Permissions</span>
+    </a>
 
     <a href="#" id="profileLink" class="nav-item">
         <i class="bi bi-person-circle"></i>
@@ -96,12 +100,10 @@
                     <i class="bi bi-search"></i>
                     <input type="search" id="instituteSearch" placeholder="Search institutes" aria-label="Search institutes">
                 </div>
-                <select id="statusFilter" class="form-select filter-select" aria-label="Filter by status">
-                    <option value="">All statuses</option>
-                    <option value="active">Active</option>
-                    <option value="suspended">Suspended</option>
-                    <option value="expired">Expired</option>
-                </select>
+               <button type="button" class="btn btn-primary" id="openPermissionsBtn"
+    data-bs-toggle="modal" data-bs-target="#permissionsModal">
+    Manage Permissions
+</button>
                
             </div>
         </div>
@@ -115,6 +117,7 @@
                         <th>Administrator</th>
                         <th>License</th>
                         <th>Status</th>
+                        <!-- <th>Permissions</th> -->
                         <th class="text-end">Action</th>
                     </tr>
                 </thead>
@@ -133,6 +136,51 @@
             </table>
         </div>
     </div>
+    <!-- Permission Modal -->
+     <div class="modal fade" id="permissionsModal" tabindex="-1"
+    aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="permissionsModalLabel">
+                        Manage Role Permissions
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        Select which actions each role is allowed to perform.
+                    </p>
+                </div>
+                <button type="button" class="btn-close"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label for="permissionRole" class="form-label">
+                        Select Role
+                    </label>
+                    <select id="permissionRole" class="form-select">
+                        <option value="">Loading roles...</option>
+                    </select>
+                </div>
+
+                <div id="permissionMessage" class="mb-3"
+                    role="status" aria-live="polite"></div>
+
+                <div id="permissionList">
+                    <p class="text-muted">Select a role to load permissions.</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                    data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary"
+                    id="savePermissionsBtn">Save Permissions</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('styles')
@@ -579,6 +627,252 @@
     $('#statusFilter').on('change', renderRows);
 
     // ---------- Load data ----------
+    const permissionApi = '/api/permissions';
+
+    function getPermissionHeaders() {
+        return {
+            Authorization: 'Bearer ' + localStorage.getItem('api_token'),
+            Accept: 'application/json'
+        };
+    }
+
+    function escapeHtml(value) {
+        return $('<div>').text(value ?? '').html();
+    }
+
+    function showPermissionMessage(message, type = 'info') {
+        const allowedTypes = ['success', 'danger', 'info', 'warning'];
+        const safeType = allowedTypes.includes(type) ? type : 'info';
+
+        $('#permissionMessage').html(
+            $('<div>')
+                .addClass('alert alert-' + safeType + ' py-2 mb-0')
+                .text(message)
+        );
+    }
+
+    function loadPermissionRoles() {
+        $('#permissionRole').prop('disabled', true);
+        $('#savePermissionsBtn').prop('disabled', true);
+        $('#permissionList').empty();
+        $('#permissionRole').html('<option value="">Loading roles...</option>');
+
+        $.ajax({
+            url: permissionApi,
+            method: 'GET',
+            headers: getPermissionHeaders(),
+
+            success: function (response) {
+                const roles = response.roles || [];
+
+                $('#permissionRole').empty();
+
+                if (roles.length === 0) {
+                    $('#permissionRole').append(
+                        '<option value="">No configurable roles found</option>'
+                    );
+                    $('#permissionList').html(
+                        '<p class="text-muted">No roles are available.</p>'
+                    );
+                    showPermissionMessage('No configurable roles were returned.', 'warning');
+                    return;
+                }
+
+                roles.forEach(function (role) {
+                    $('#permissionRole').append(
+                        $('<option>')
+                            .val(role.id)
+                            .text(role.role_name)
+                    );
+                });
+
+                $('#permissionRole').prop('disabled', false);
+                loadSelectedRolePermissions();
+            },
+
+            error: function (xhr) {
+                $('#permissionRole').html(
+                    '<option value="">Unable to load roles</option>'
+                );
+
+                $('#permissionList').html(
+                    '<p class="text-danger">Unable to load permissions.</p>'
+                );
+
+                showPermissionMessage(
+                    xhr.responseJSON?.message || 'Failed to load roles.',
+                    'danger'
+                );
+            }
+        });
+    }
+
+    function loadSelectedRolePermissions() {
+        const roleId = $('#permissionRole').val();
+
+        if (!roleId) {
+            $('#permissionList').empty();
+            $('#savePermissionsBtn').prop('disabled', true);
+            return;
+        }
+
+        $('#savePermissionsBtn').prop('disabled', true);
+        $('#permissionList').html(
+            '<p class="text-muted">Loading permissions...</p>'
+        );
+        $('#permissionMessage').empty();
+
+        $.ajax({
+            url: permissionApi + '?role_id=' + encodeURIComponent(roleId),
+            method: 'GET',
+            headers: getPermissionHeaders(),
+
+            success: function (response) {
+                renderPermissions(
+                    response.permissions || {},
+                    response.assigned_permission_ids || []
+                );
+
+                $('#savePermissionsBtn').prop('disabled', false);
+            },
+
+            error: function (xhr) {
+                $('#permissionList').html(
+                    '<p class="text-danger">Unable to load this role’s permissions.</p>'
+                );
+
+                showPermissionMessage(
+                    xhr.responseJSON?.message || 'Failed to load permissions.',
+                    'danger'
+                );
+            }
+        });
+    }
+
+    function renderPermissions(permissionGroups, assignedIds) {
+        const assigned = new Set(
+            assignedIds.map(function (id) {
+                return Number(id);
+            })
+        );
+
+        const $container = $('#permissionList');
+        $container.empty();
+
+        const modules = Object.keys(permissionGroups);
+
+        if (modules.length === 0) {
+            $container.html(
+                '<p class="text-muted">No permissions are available.</p>'
+            );
+            return;
+        }
+
+        modules.forEach(function (module, index) {
+            const $card = $('<div>')
+                .addClass('card mb-3');
+
+            const $header = $('<div>')
+                .addClass('card-header fw-semibold')
+                .text(module);
+
+            const $body = $('<div>')
+                .addClass('card-body');
+
+            const permissions = permissionGroups[module] || [];
+
+            permissions.forEach(function (permission) {
+                const checkboxId = 'permission_' + permission.id;
+
+                const $checkbox = $('<input>')
+                    .attr({
+                        type: 'checkbox',
+                        id: checkboxId,
+                        value: permission.id
+                    })
+                    .addClass('form-check-input permission-checkbox')
+                    .prop('checked', assigned.has(Number(permission.id)));
+
+                const $label = $('<label>')
+                    .attr('for', checkboxId)
+                    .addClass('form-check-label fw-medium')
+                    .text(permission.name);
+
+                const $item = $('<div>').addClass('form-check mb-2');
+
+                $item.append($checkbox, $label);
+
+                if (permission.description) {
+                    $item.append(
+                        $('<div>')
+                            .addClass('small text-muted ms-4')
+                            .text(permission.description)
+                    );
+                }
+
+                $body.append($item);
+            });
+
+            $card.append($header, $body);
+            $container.append($card);
+        });
+    }
+
+    $('#openPermissionsBtn').on('click', function () {
+        loadPermissionRoles();
+    });
+
+    $('#permissionRole').on('change', function () {
+        loadSelectedRolePermissions();
+    });
+
+    $('#savePermissionsBtn').on('click', function () {
+        const roleId = $('#permissionRole').val();
+
+        if (!roleId) {
+            showPermissionMessage('Please select a role.', 'warning');
+            return;
+        }
+
+        const permissionIds = $('#permissionList .permission-checkbox:checked')
+            .map(function () {
+                return Number($(this).val());
+            })
+            .get();
+
+        const $saveButton = $(this);
+
+        $saveButton.prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: permissionApi,
+            method: 'PUT',
+            headers: getPermissionHeaders(),
+            contentType: 'application/json',
+            data: JSON.stringify({
+                role_id: Number(roleId),
+                permission_ids: permissionIds
+            }),
+
+            success: function (response) {
+                showPermissionMessage(
+                    response.message || 'Permissions saved successfully.',
+                    'success'
+                );
+            },
+
+            error: function (xhr) {
+                showPermissionMessage(
+                    xhr.responseJSON?.message || 'Unable to save permissions.',
+                    'danger'
+                );
+            },
+
+            complete: function () {
+                $saveButton.prop('disabled', false).text('Save Permissions');
+            }
+        });
+    });
     $.ajax({
         url: '/api/getInstitutes',
         type: 'GET',
@@ -614,6 +908,8 @@
                 <span>Check your connection and <a href="#" onclick="location.reload();return false;">try again</a>.</span>
             </div></td></tr>`);
         }
+
+        // permission functions
     });
 </script>
 @endpush

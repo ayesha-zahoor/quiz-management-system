@@ -39,7 +39,7 @@ class SpeechController extends Controller
             } catch (\Throwable $e) {
                  \Log::error("transaction failed". $e->getMessage(),[
                     'class'=>get_class($e),
-                    'file'=>getFile().':'.$e->getLine(),
+                    'file'=>$e->getFile().':'.$e->getLine(),
                  ]);
                 // report($e);
 

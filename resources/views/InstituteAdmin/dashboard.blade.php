@@ -178,6 +178,11 @@
         </div>
     </section>
 
+    <iframe src="https://www.slideshare.net/slideshow/embed_code/key/D1UYUNwImbveXh" width="510" height="420"frameborder="0" marginwidth="0" marginheight="0" scrolling="no"style="border: var(--border-1) solid #CCC; border-width:1px; margin-bottom:5px; max-width:100%;"allowfullscreen></iframe><div style="margin-bottom:5px"><strong><a href="https://www.slideshare.net/slideshow/digital-forensic-73189319/73189319" title="digital-forensic-73189319" target="_blank">digital-forensic-73189319</a></strong>from <strong><a href="https://www.slideshare.net/cleverence1" target="_blank">Cleverence Kombe</a></strong></div>
+
+
+        
+
 @endsection
 
 

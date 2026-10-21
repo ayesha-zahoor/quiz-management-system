@@ -26,7 +26,10 @@
         <i class="bi bi-sliders"></i>
         <span>Configuration</span>
     </a> --}}
-
+       <a href="/superAdmin/permissions" class="nav-item" aria-current="page">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>Permissions</span>
+    </a>
     <a href="/superadmin/profile" class="nav-item active">
         <i class="bi bi-person-circle"></i>
         <span>Profile</span>

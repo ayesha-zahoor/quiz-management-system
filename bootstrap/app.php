@@ -17,7 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
          'institute.admin' => \App\Http\Middleware\InstituteAdminMiddleware::class,
           'teacher' => \App\Http\Middleware\TeacherMiddleware::class,
            'student' => \App\Http\Middleware\StudentMiddleware::class,
+        'permission' => \App\Http\Middleware\CheckPermission::class,
+
+           
     ]);
+    
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
