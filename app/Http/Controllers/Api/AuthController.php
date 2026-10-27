@@ -36,11 +36,11 @@ class AuthController extends Controller
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'message' => 'successfully login',
-            'token_type' => 'Bearer',
-            'user' => $user,
-        ]);
+    'token' => $token,
+    'message' => 'successfully login',
+    'token_type' => 'Bearer',
+    'user' => $user,
+] + $this->permissionPayload($user));
     }
 
     public function logout(Request $request): JsonResponse
@@ -52,10 +52,26 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me(Request $request): JsonResponse
-    {
-        return response()->json([
-            'user' => $request->user()->load('role'),
-        ]);
-    }
+   public function me(Request $request): JsonResponse
+{
+    return response()->json([
+        'user' => $request->user()->load('role'),
+    ] + $this->permissionPayload($request->user()));
+}
+public function permissions(Request $request): JsonResponse
+{
+    return response()->json($this->permissionPayload($request->user()));
+}
+private function permissionPayload(User $user): array
+{
+    $user->loadMissing('role');
+    $isSystemAdmin = $user->role?->role_name === 'system_admin';
+
+    return [
+        'is_system_admin' => $isSystemAdmin,
+        'permissions' => ($isSystemAdmin || ! $user->role)
+            ? []
+            : $user->role->permissions()->pluck('permissions.name')->values(),
+    ];
+}
 }

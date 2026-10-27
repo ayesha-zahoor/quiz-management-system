@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Permission;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -84,5 +85,27 @@ class User extends Authenticatable
     public function quizAttempts(): HasMany
     {
         return $this->hasMany(QuizAttempt::class, 'student_id');
+    }
+     public function permissions():BelongsToMany 
+    {
+        return $this->BelongsToMany(Permission::class,'permission_user')->withPivot('allowed')->withTimestamp();
+        ->withPivot('allowed')
+        ->withTimestamps();
+    }
+    public function hasPermisison(string $permissionName):bool{
+        if($this->role?->role_name==="system_admin"){
+            return true;
+        }
+        $permissison = Permission::where('name',$permissionName);
+        if(!$permissison){
+            return false;
+        }
+        $individualPermisison = $this->permissions()->where('permissions.id',$permission->id)->first();
+        if($indivitualPermission){
+            return $this->$individualPermisison->pivot->allowed;
+        }
+        return $this->role()->whereHas('permissions', function($query) use($permissionname){
+            $query->where('name',$permissionName)
+        })->exists();
     }
 }

@@ -689,33 +689,30 @@
                 email:identity,
                 password:password,
             },
-            success:function(response){
-                console.log(response);
-                const token = response.token;
-                const role= response.user.role.role_name;
-                console.log(role);
-                localStorage.setItem('api_token',token);
-                if (role === 'system_admin') {
-        window.location.href = '/superAdmin/dashboard';
-    }
-      else if(role === 'institute_admin') {
-        window.location.href = '/instituteAdmin/dashboard';
-    }
-    else if(role === 'teacher') {
-        window.location.href = '/teacher/dashboard';
-    }
-     else if(role === 'student') {
-        window.location.href = '/student/dashboard';
-    }
-      },
-            error: function(xhr) {
+           success: function (response) {
+    const role = response.user?.role?.role_name;
 
-            console.log(xhr);
+    localStorage.setItem('api_token', response.token);
+    localStorage.setItem('is_system_admin', response.is_system_admin ? '1' : '0');
+    localStorage.setItem('permissions', JSON.stringify(response.permissions || []));
 
-            setLoginLoading(false);
+    const dashboards = {
+        system_admin: '/superAdmin/dashboard',
+        institute_admin: '/instituteAdmin/dashboard',
+        teacher: '/teacher/dashboard',
+        student: '/student/dashboard'
+    };
 
-            showLoginAlert('Login failed.');
-            }
+    if (dashboards[role]) {
+        window.location.href = dashboards[role];
+    } else {
+        setLoginLoading(false);
+        showLoginAlert('Your account has no valid role. Please contact the administrator.');
+    }
+},error: function (xhr) {
+    setLoginLoading(false);
+    showLoginAlert(xhr.responseJSON?.errors?.email?.[0] || xhr.responseJSON?.message || 'Login failed.');
+}
         });
 
             }

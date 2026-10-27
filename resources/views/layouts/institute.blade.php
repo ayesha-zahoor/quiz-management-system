@@ -610,35 +610,40 @@
             <div class="sidebar-section-label">Main</div>
 
             <a href="/instituteAdmin/dashboard"
-               class="nav-item {{ request()->is('instituteAdmin/dashboard') ? 'active' : '' }}">
+               class="nav-item {{ request()->is('instituteAdmin/dashboard') ? 'active' : '' }}"
+              >
                 <i class="bi bi-grid-1x2-fill"></i>
                 <span>Dashboard</span>
             </a>
               <a href="/instituteAdmin/classes"
-               class="nav-item {{ request()->is('instituteAdmin/classes*') ? 'active' : '' }}">
+               class="nav-item {{ request()->is('instituteAdmin/classes*') ? 'active' : '' }}" data-permission="view_classes">
                 <i class="bi bi-building"></i>
                 <span>Classes</span>
             </a>
 
             <a href="/instituteAdmin/subjects"
-               class="nav-item {{ request()->is('instituteAdmin/subjects*') ? 'active' : '' }}">
+               class="nav-item {{ request()->is('instituteAdmin/subjects*') ? 'active' : '' }}"
+               data-permission="view_subjects">
                 <i class="bi bi-book"></i>
                 <span>Subjects</span>
             </a>
 
             <a href="/instituteAdmin/students"
-               class="nav-item {{ request()->is('instituteAdmin/students*') ? 'active' : '' }}">
+               class="nav-item {{ request()->is('instituteAdmin/students*') ? 'active' : '' }}"
+               data-permission="view_students">
                 <i class="bi bi-people-fill"></i>
                 <span>Students</span>
             </a>
 
             <a href="/instituteAdmin/teachers"
-               class="nav-item {{ request()->is('instituteAdmin/teachers*') ? 'active' : '' }}">
+               class="nav-item {{ request()->is('instituteAdmin/teachers*') ? 'active' : '' }}"
+               data-permission="view_teachers">
                 <i class="bi bi-person-workspace"></i>
                 <span>Teachers</span>
             </a>
 
-            <a href="/instituteAdmin/results" class=" nav-item {{ request()->is('instituteAdmin/results*') ? 'active' : '' }}">
+            <a href="/instituteAdmin/results" class=" nav-item {{ request()->is('instituteAdmin/results*') ? 'active' : '' }}"
+            data-permission="view_results">
     <i class="bi bi-bar-chart-line"></i>
      <span>Results</span>
 </a>
@@ -722,6 +727,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/js/permissions.js"></script>
+
 
 <script>
     // Adjust these to your routes
@@ -732,7 +739,7 @@
         const sidebar = document.getElementById('appSidebar');
         const overlay = document.getElementById('sidebarOverlay');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-
+        
         function openSidebar() {
             sidebar.classList.add('open');
             overlay.classList.add('show');
@@ -743,16 +750,16 @@
             overlay.classList.remove('show');
             document.body.style.overflow = '';
         }
-
+        
         if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openSidebar);
         if (overlay) overlay.addEventListener('click', closeSidebar);
-
+        
         document.querySelectorAll('.app-sidebar .sidebar-nav a').forEach(function (link) {
             link.addEventListener('click', function () {
                 if (window.innerWidth <= 991) closeSidebar();
             });
         });
-
+        
         window.addEventListener('resize', function () {
             if (window.innerWidth > 991) closeSidebar();
         });
@@ -780,10 +787,10 @@
             warning: 'bi-exclamation-triangle-fill',
             info: 'bi-info-circle-fill'
         };
-
+        
         container.innerHTML = `
-            <div class="alert alert-${type} app-alert alert-dismissible fade show mb-4" role="alert">
-                <i class="bi ${iconMap[type] || iconMap.info} me-2"></i>
+        <div class="alert alert-${type} app-alert alert-dismissible fade show mb-4" role="alert">
+        <i class="bi ${iconMap[type] || iconMap.info} me-2"></i>
                 ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -813,7 +820,7 @@
         success: function (response) {
             const user = response.data || {};
             window.currentUser = user;
-
+            
             if (user.name) {
                 const initials = user.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
                 $('#topbarUserName, #sidebarUserName').text(user.name);
@@ -832,7 +839,7 @@
                 localStorage.setItem('admin_id', user.id);
                 setProfileLinks(user.id);
             }
-
+            
             // Lets any page react (for example the dashboard greeting)
             $(document).trigger('user:loaded', [user]);
         }
@@ -844,10 +851,10 @@
         type: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
     });
-
+    
     window.instituteDashboard.done(function (response) {
         const configuration = response?.data?.institute?.configuration;
-
+        
         if (configuration) {
             window.applyInstituteTheme(configuration);
             localStorage.setItem('institute_config', JSON.stringify(configuration));
@@ -866,10 +873,46 @@
                 localStorage.removeItem('api_token');
                 localStorage.removeItem('institute_config');
                 localStorage.removeItem('admin_id');
+                localStorage.removeItem('is_system_admin');
+localStorage.removeItem('permissions');
                 window.location.href = '/';
             }
         });
     });
+    
+// window.Perm = {
+    //     ready: null,
+    
+//     load() {
+//         const token = localStorage.getItem('api_token');
+//         if (!token) return $.Deferred().reject().promise();   // not logged in: still returns something .always() can use
+
+//         return $.ajax({
+//             url: '/api/me/permissions',
+//             method: 'GET',
+//             headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+//         }).done(function (r) {
+//             localStorage.setItem('is_system_admin', r.is_system_admin ? '1' : '0');
+//             localStorage.setItem('permissions', JSON.stringify(r.permissions || []));
+//         });
+//     },
+
+//     can(name) {
+    //         if (localStorage.getItem('is_system_admin') === '1') return true;
+    //         try { return JSON.parse(localStorage.getItem('permissions') || '[]').includes(name); }
+//         catch (e) { return false; }
+//     },
+
+//     apply(root) {
+    //         $(root || document).find('[data-permission]').each(function () {
+        //             const any = String($(this).data('permission')).split(',').map(s => s.trim());
+        //             if (!any.some(Perm.can)) $(this).remove();
+//         });
+//     }
+// };
+
+// Perm.ready = Perm.load();                                      // starts the request right away
+// $(function () { Perm.ready.always(() => Perm.apply()); });     // hide labeled items when it finishes
 </script>
 
 @stack('scripts')

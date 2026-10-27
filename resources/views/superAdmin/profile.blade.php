@@ -6,6 +6,8 @@
 @section('page-description', 'View and manage your Super Admin account information.')
 
 @section('sidebar')
+       
+    <div class="sidebar-section-label">Main</div>
 
     <a href='/superAdmin/dashboard' class="nav-item">
         <i class="bi bi-grid-1x2-fill"></i>

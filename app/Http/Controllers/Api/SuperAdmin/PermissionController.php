@@ -73,4 +73,17 @@ class PermissionController extends Controller
           ]);
 
     }
+    public function mine(Request $request)
+{
+    $user = $request->user()->loadMissing('role');
+    $isSystemAdmin = $user->role?->role_name === 'system_admin';
+
+    return response()->json([
+        'is_system_admin' => $isSystemAdmin,
+        'permissions' => ($isSystemAdmin || ! $user->role)
+            ? []
+            : $user->role->permissions()->pluck('permissions.name')->values(),
+    ]);
+}
+
 }

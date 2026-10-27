@@ -17,7 +17,7 @@
             <p class="text-muted mb-0">Create and manage subjects for your institute</p>
         </div>
 
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal">
+        <button type="button" class="btn btn-primary" data-permission="create_subjects" data-bs-toggle="modal" data-bs-target="#subjectModal">
             <i class="bi bi-plus-lg me-1"></i> Add Subject
         </button>
     </div>
@@ -366,7 +366,7 @@
                         <i class="bi ${icon} big"></i>
                         <h6 class="mb-1">${esc(title)}</h6>
                         <p class="mb-${withButton ? '3' : '0'}">${esc(message)}</p>
-                        ${withButton ? '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal"><i class="bi bi-plus-lg me-1"></i> Add Subject</button>' : ''}
+                        ${withButton && Perm.can('create_subjects') ? '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal"><i class="bi bi-plus-lg me-1"></i> Add Subject</button>' : ''}
                     </div>
                 </td>
             </tr>`;
@@ -378,6 +378,10 @@
         const list = allSubjects.filter(item =>
             !query || [item.name, item.code].join(' ').toLowerCase().includes(query)
         );
+        const canEdit = Perm.can('edit_subjects');
+        const canDelete = Perm.can('delete_subjects');
+        const showActions = canEdit || canDelete;
+        $('th.col-actions').toggleClass('d-none', !showActions);
 
         $('#subjectCount').text(query
             ? `${list.length} of ${allSubjects.length} subjects`
@@ -404,18 +408,15 @@
                         </div>
                     </td>
                     <td><span class="code-badge">${esc(item.code || '—')}</span></td>
-                    <td class="text-end pe-4">
-                        <div class="action-buttons">
-                            <button type="button" class="action-btn edit-btn" data-id="${item.id}"
-                                data-bs-toggle="modal" data-bs-target="#subjectModal">
-                                <i class="bi bi-pencil"></i> Edit
-                            </button>
-                            <button type="button" class="action-btn delete-btn" data-id="${item.id}"
-                                data-bs-toggle="modal" data-bs-target="#deleteSubjectModal">
-                                <i class="bi bi-trash"></i> Delete
-                            </button>
-                        </div>
-                    </td>
+                   ${showActions ? `
+<td class="text-end pe-4">
+    <div class="action-buttons">
+        ${canEdit ? `<button type="button" class="action-btn edit-btn" data-id="${item.id}"
+            data-bs-toggle="modal" data-bs-target="#subjectModal"><i class="bi bi-pencil"></i> Edit</button>` : ''}
+        ${canDelete ? `<button type="button" class="action-btn delete-btn" data-id="${item.id}"
+            data-bs-toggle="modal" data-bs-target="#deleteSubjectModal"><i class="bi bi-trash"></i> Delete</button>` : ''}
+    </div>
+</td>` : ''}
                 </tr>`;
         }).join(''));
     }
@@ -440,7 +441,8 @@
     // ---------- Add / Edit ----------
     $('#subjectModal').on('show.bs.modal', function (event) {
         const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.edit-btn') : $();
-
+      const isEdit = trigger.length > 0;
+if (isEdit ? !Perm.can('edit_subjects') : !Perm.can('create_subjects')) { event.preventDefault(); return; }
         $('#subjectForm')[0].reset();
         clearFieldErrors('#subjectForm');
         $('#editId').val('');
@@ -509,6 +511,7 @@
     // ---------- Delete (always asks first) ----------
     $('#deleteSubjectModal').on('show.bs.modal', function (event) {
         const trigger = $(event.relatedTarget).closest('.delete-btn');
+        if (!Perm.can('delete_subjects')) { event.preventDefault(); return; }
         const item = allSubjects.find(s => String(s.id) === String(trigger.data('id')));
 
         $('#deleteSubjectId').val(trigger.data('id') || '');
@@ -544,6 +547,14 @@
         });
     });
 
-    $(document).ready(loadSubjects);
+    $(document).ready(function () {
+    Perm.ready.always(function () {
+        if (!Perm.can('view_subjects')) {
+            $('#subjectsTableBody').html(messageRow('bi-lock', 'No access', 'You do not have permission to view subjects.', false));
+            return;
+        }
+        loadSubjects();
+    });
+});
 </script>
 @endpush

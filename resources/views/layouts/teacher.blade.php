@@ -348,14 +348,17 @@
             <i class="bi bi-grid-1x2-fill"></i> Dashboard
         </a>
 
-        <a href='/teacher/quizzes' class="{{ request()->is('teacher/quizzes') ? 'active' : '' }}">
+        <a href='/teacher/quizzes' data-permission="view_quizzes" class="{{ request()->is('teacher/quizzes') ? 'active' : '' }}">
             <i class="bi bi-journal-text"></i> My Quizzes
         </a>
 
-        <a href="/teacher/createQuiz" class="{{ request()->is('teacher/quizzes/create') ? 'active' : '' }}">
+        <a href="/teacher/createQuiz" data-permission="create_quizzes" class="{{ request()->is('teacher/quizzes/create') ? 'active' : '' }}">
             <i class="bi bi-plus-circle"></i> Create Quiz
         </a>
-          <a href="/teacher/results" class="{{ request()->is('teacher/results*') ? 'active' : '' }}">
+          <a href="/teacher/results" 
+          data-permission="view_results"
+          class="{{ request()->is('teacher/results*') ? 'active' : '' }}"
+          >
       <i class="bi bi-bar-chart-line"></i> Results
   </a>
           <a href="#" id="sidebarProfileLink"
@@ -422,6 +425,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/permissions.js"></script>
 
 <script>
     window.token = localStorage.getItem('api_token');
@@ -481,6 +485,8 @@
                 localStorage.removeItem('api_token');
                 localStorage.removeItem('user');
                 localStorage.removeItem('teacher_config');
+                localStorage.removeItem('is_system_admin');
+localStorage.removeItem('permissions');
                 window.location.href = '/';
             });
         });

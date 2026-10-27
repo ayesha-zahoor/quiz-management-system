@@ -18,8 +18,8 @@
             <p>Here's what's happening with your quizzes today.</p>
 
             <div class="td-hero-actions">
-                <a href="/teacher/createQuiz" class="td-btn solid"><i class="bi bi-plus-lg"></i> Create New Quiz</a>
-                <a href="/teacher/quizzes" class="td-btn ghost"><i class="bi bi-collection"></i> Manage Quizzes</a>
+                <a href="/teacher/createQuiz"  data-permission="create_quizzes" class="td-btn solid"><i class="bi bi-plus-lg"></i> Create New Quiz</a>
+                <a href="/teacher/quizzes" data-permission="view_quizzes" class="td-btn ghost"><i class="bi bi-collection"></i> Manage Quizzes</a>
             </div>
         </div>
 
@@ -95,7 +95,7 @@
                         <h5>My Quizzes</h5>
                         <p>View and manage your assessments</p>
                     </div>
-                    <a href="/teacher/quizzes" class="panel-link">View all <i class="bi bi-arrow-right"></i></a>
+                    <a href="/teacher/quizzes" data-permision="view_quizzes" class="panel-link">View all <i class="bi bi-arrow-right"></i></a>
                 </header>
 
                 <div class="quiz-tools">
@@ -168,7 +168,7 @@
                         <i class="bi bi-chevron-right"></i>
                     </a>
 
-                    <a href="/teacher/quizzes" class="quick-link">
+                    <a href="/teacher/quizzes" data-permission="view_quizzes" class="quick-link">
                         <span class="quick-ico"><i class="bi bi-collection"></i></span>
                         <span><strong>Manage Quizzes</strong><small>View and update your quizzes</small></span>
                         <i class="bi bi-chevron-right"></i>
@@ -692,6 +692,9 @@
             const shown = query ? list.slice(0, 30) : list.slice(0, PREVIEW_COUNT);
 
             $('#quizList').html(shown.map(function (quiz) {
+                Perm.ready.always(function(){
+                    Perm.apply($('#quizList'));
+                })
                 const published = isPublished(quiz);
                 const questions = quiz.questions_count ?? quiz.questions?.length ?? 0;
 
@@ -722,7 +725,7 @@
 
             <div class="mt-3">
                 <a href="/teacher/${quiz.id}/questions"
-                   class="btn btn-sm btn-primary">
+                    class="btn btn-sm btn-primary">
                     <i class="bi bi-list-check me-1"></i> Manage Questions
                 </a>
             </div>
@@ -733,7 +736,7 @@
             $('#quizFooter')
                 .removeClass('d-none')
                 .html(`<span>Showing ${shown.length} of ${list.length} quiz${list.length === 1 ? '' : 'zes'}</span>
-                       <a href="/teacher/quizzes" class="panel-link">Manage all quizzes <i class="bi bi-arrow-right"></i></a>`);
+                       <a href="/teacher/quizzes" data-permission="view_quizzes" class="panel-link">Manage all quizzes <i class="bi bi-arrow-right"></i></a>`);
                        
                        
         }

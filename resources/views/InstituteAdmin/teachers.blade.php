@@ -43,7 +43,7 @@
             <p class="text-muted mb-0">Manage teachers associated with your institute</p>
         </div>
 
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#teacherModal">
+        <button class="btn btn-primary" data-permission="create_teachers" data-bs-toggle="modal"  data-bs-target="#teacherModal">
             <i class="bi bi-plus-lg me-1"></i>
             Add Teacher
         </button>
@@ -855,6 +855,7 @@
 
     // Fills the "Teaches" column, one request per teacher; each row updates as its answer arrives
     function loadAllAssignments() {
+        if (!Perm.can('assign_teacher_classes')) return;
         subjectsReady.always(function () {
             allTeachers.forEach(function (teacher) {
                 fetchAssignments(teacher.id)
@@ -928,6 +929,12 @@
         }
 
         let rows = '';
+        const canEdit = Perm.can('edit_teachers');
+const canAssign = Perm.can('assign_teacher_classes');
+const canDelete = Perm.can('delete_teachers');
+const showActions = canEdit || canAssign || canDelete;
+$('th.col-actions').toggleClass('d-none', !showActions);
+$('th.col-assigned').toggleClass('d-none', !canAssign);
 
         list.forEach(function (teacher, index) {
             const photo = teacher.profile_image
@@ -954,28 +961,24 @@
                         </div>
                     </td>
 
-                    <td data-label="Teaches">
-                        <div class="assign-cell" id="assignCell-${teacher.id}">${assignmentCellHtml(teacher.id)}</div>
-                    </td>
+                   
 
-                    <td class="text-end pe-4 cell-actions">
-                        <div class="action-buttons">
-                            <button type="button" class="action-btn icon edit-btn" data-id="${teacher.id}"
-                                data-bs-toggle="modal" data-bs-target="#teacherEditModal"
-                                title="Edit teacher" aria-label="Edit teacher">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="action-btn assign-btn" data-id="${teacher.id}"
-                                data-bs-toggle="modal" data-bs-target="#teacherAssignModal">
-                                <i class="bi bi-diagram-3"></i> Assign
-                            </button>
-                            <button type="button" class="action-btn icon delete-btn" data-id="${teacher.id}"
-                                data-bs-toggle="modal" data-bs-target="#deleteTeacherModal"
-                                title="Delete teacher" aria-label="Delete teacher">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
+                    ${canAssign ? `
+<td data-label="Teaches">
+    <div class="assign-cell" id="assignCell-${teacher.id}">${assignmentCellHtml(teacher.id)}</div>
+</td>` : ''}
+
+${showActions ? `
+<td class="text-end pe-4 cell-actions">
+    <div class="action-buttons">
+        ${canEdit ? `<button type="button" class="action-btn icon edit-btn" data-id="${teacher.id}"
+            data-bs-toggle="modal" data-bs-target="#teacherEditModal" title="Edit teacher" aria-label="Edit teacher"><i class="bi bi-pencil"></i></button>` : ''}
+        ${canAssign ? `<button type="button" class="action-btn assign-btn" data-id="${teacher.id}"
+            data-bs-toggle="modal" data-bs-target="#teacherAssignModal"><i class="bi bi-diagram-3"></i> Assign</button>` : ''}
+        ${canDelete ? `<button type="button" class="action-btn icon delete-btn" data-id="${teacher.id}"
+            data-bs-toggle="modal" data-bs-target="#deleteTeacherModal" title="Delete teacher" aria-label="Delete teacher"><i class="bi bi-trash"></i></button>` : ''}
+    </div>
+</td>` : ''}
                 </tr>`;
         });
 
@@ -1072,6 +1075,7 @@
 
     // ---------- Add ----------
     $('#teacherModal').on('show.bs.modal', function () {
+        if (!Perm.can('create_teachers')) { arguments[0].preventDefault(); return; }
         $('#teacherForm')[0].reset();
         clearFieldErrors('#teacherForm');
         $('#addPhotoPreview').hide().attr('src', '');
@@ -1126,6 +1130,7 @@
     // ---------- Edit ----------
     $('#teacherEditModal').on('show.bs.modal', function (event) {
         const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.edit-btn') : $();
+        if (!Perm.can('edit_teachers')) { event.preventDefault(); return; }
 
         $('#teacherEditForm')[0].reset();
         clearFieldErrors('#teacherEditForm');
@@ -1218,42 +1223,37 @@
         $(selector).html(options);
     }
 
-    function loadAssignOptions() {
+   function loadAssignOptions() {
+    if (!Perm.can('assign_teacher_classes')) { subjectsReady.resolve(); return; }
+
+    if (Perm.can('view_classes')) {
         $.ajax({
-            url: '/api/classes',
-            type: 'GET',
-            headers: authHeaders(),
-            success: function (response) {
-                fillSelect('#assignClass', 'Select Class', responseItems(response), ['class_name', 'name']);
-            },
-            error: function (xhr) {
-                showNotice('error', getErrorMessage(xhr, 'Unable to load classes.'));
-            }
-        });
-
-        $.ajax({
-            url: SUBJECTS_URL,
-            type: 'GET',
-            headers: authHeaders(),
-            success: function (response) {
-                const subjects = responseItems(response);
-
-                subjectsById = {};
-                subjects.forEach(s => { subjectsById[s.id] = s.subject_name || s.name; });
-
-                fillSelect('#assignSubject', 'Select Subject', subjects, ['subject_name', 'name']);
-            },
-            error: function (xhr) {
-                showNotice('error', getErrorMessage(xhr, 'Unable to load subjects.'));
-            },
-            complete: function () {
-                subjectsReady.resolve();
-            }
+            url: '/api/classes', type: 'GET', headers: authHeaders(),
+            success: function (response) { fillSelect('#assignClass', 'Select Class', responseItems(response), ['class_name', 'name']); },
+            error: function (xhr) { showNotice('error', getErrorMessage(xhr, 'Unable to load classes.')); }
         });
     }
 
+    if (Perm.can('view_subjects')) {
+        $.ajax({
+            url: SUBJECTS_URL, type: 'GET', headers: authHeaders(),
+            success: function (response) {
+                const subjects = responseItems(response);
+                subjectsById = {};
+                subjects.forEach(s => { subjectsById[s.id] = s.subject_name || s.name; });
+                fillSelect('#assignSubject', 'Select Subject', subjects, ['subject_name', 'name']);
+            },
+            error: function (xhr) { showNotice('error', getErrorMessage(xhr, 'Unable to load subjects.')); },
+            complete: function () { subjectsReady.resolve(); }
+        });
+    } else {
+        subjectsReady.resolve();
+    }
+}
+
     $('#teacherAssignModal').on('show.bs.modal', function (event) {
         const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.assign-btn') : $();
+        if (!Perm.can('assign_teacher_classes')) { event.preventDefault(); return; }
         const teacher = allTeachers.find(item => String(item.id) === String(trigger.data('id')));
 
         $('#teacherAssignForm')[0].reset();
@@ -1369,6 +1369,7 @@
     // ---------- Delete (always asks first) ----------
     $('#deleteTeacherModal').on('show.bs.modal', function (event) {
         const trigger = $(event.relatedTarget).closest('.delete-btn');
+        if (!Perm.can('delete_teachers')) { event.preventDefault(); return; }
         const teacher = allTeachers.find(item => String(item.id) === String(trigger.data('id')));
 
         $('#deleteTeacherId').val(trigger.data('id') || '');
@@ -1405,8 +1406,14 @@
     });
 
     $(document).ready(function () {
+    Perm.ready.always(function () {
+        if (!Perm.can('view_teachers')) {
+            $('#TableBody').html(messageRow('bi-lock', 'No access', 'You do not have permission to view teachers.'));
+            return;
+        }
         loadTeachers();
         loadAssignOptions();
     });
+});
 </script>
 @endpush

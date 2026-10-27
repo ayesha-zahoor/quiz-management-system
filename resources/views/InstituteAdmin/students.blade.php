@@ -107,7 +107,7 @@
         <div class="modal-content border-0 shadow">
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title" id="studentModalTitle">Add Student</h5>
+                    <h5 class="modal-title" data-permission="create_students" id="studentModalTitle">Add Student</h5>
                     <small class="text-muted">Enter student account details</small>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -542,7 +542,10 @@
 
         const startAt = paginator.from || 1;
         let rows = '';
-
+         const canEdit = Perm.can('edit_students');
+const canDelete = Perm.can('delete_students');
+const showActions = canEdit || canDelete;
+$('th.col-actions').toggleClass('d-none', !showActions);
         students.forEach(function (student, index) {
             const photo = student.profile_image
                 ? `<img src="/storage/${escapeHtml(student.profile_image)}" class="student-avatar" alt="">`
@@ -569,24 +572,15 @@
                     <td>${classCell}</td>
                     <td><span class="attempt-pill"><i class="bi bi-journal-check"></i>${student.quiz_attempts_count ?? 0}</span></td>
                     <td class="cell-nowrap">${formatJoined(student.created_at)}</td>
-                    <td class="text-end pe-4">
-                        <div class="action-buttons">
-                            <button type="button"
-                                class="action-btn edit-btn"
-                                data-id="${student.id}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#studentModal">
-                                <i class="bi bi-pencil"></i> Edit
-                            </button>
-                            <button type="button"
-                                class="action-btn delete-btn"
-                                data-id="${student.id}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteStudentModal">
-                                <i class="bi bi-trash"></i> Delete
-                            </button>
-                        </div>
-                    </td>
+                    ${showActions ? `
+<td class="text-end pe-4">
+    <div class="action-buttons">
+        ${canEdit ? `<button type="button" class="action-btn edit-btn" data-id="${student.id}"
+            data-bs-toggle="modal" data-bs-target="#studentModal"><i class="bi bi-pencil"></i> Edit</button>` : ''}
+        ${canDelete ? `<button type="button" class="action-btn delete-btn" data-id="${student.id}"
+            data-bs-toggle="modal" data-bs-target="#deleteStudentModal"><i class="bi bi-trash"></i> Delete</button>` : ''}
+    </div>
+</td>` : ''}
                 </tr>
             `;
         });
@@ -645,6 +639,8 @@
     // One handler decides: opened by an Edit button = fill the form, otherwise = blank form
     $('#studentModal').on('show.bs.modal', function (event) {
         const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.edit-btn') : $();
+        const isEdit = trigger.length > 0;
+if (isEdit ? !Perm.can('edit_students') : !Perm.can('create_students')) { event.preventDefault(); return; }
 
         resetStudentForm();
 
@@ -770,6 +766,7 @@
     // ---------- Delete (always asks first) ----------
     $('#deleteStudentModal').on('show.bs.modal', function (event) {
         const trigger = $(event.relatedTarget).closest('.delete-btn');
+        if (!Perm.can('delete_students')) { event.preventDefault(); return; }
         const student = allStudents.find(item => String(item.id) === String(trigger.data('id')));
 
         $('#deleteStudentId').val(trigger.data('id') || '');
@@ -811,9 +808,15 @@
         });
     });
 
-    $(document).ready(function () {
-        loadClasses();
+   $(document).ready(function () {
+    Perm.ready.always(function () {
+        if (!Perm.can('view_students')) {
+            $('#studentTableBody').html('<tr><td colspan="7" class="text-center py-5 text-muted">You do not have permission to view students.</td></tr>');
+            return;
+        }
+        if (Perm.can('view_classes')) loadClasses();
         loadStudents();
     });
+});
 </script>
 @endpush

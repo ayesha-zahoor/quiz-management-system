@@ -631,6 +631,8 @@ $('#studentLogout').on('click', async function (e) {
     }
 
     localStorage.clear();
+    localStorage.removeItem('is_system_admin');
+localStorage.removeItem('permissions');
     sessionStorage.clear();
     window.location.href = '/';
 

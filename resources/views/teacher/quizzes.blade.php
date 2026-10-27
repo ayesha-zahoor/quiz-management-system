@@ -139,7 +139,7 @@
             <h2 class="qz-title">My Quizzes</h2>
             <p class="qz-subtitle">View and manage your assessments</p>
         </div>
-        <a href="/teacher/createQuiz" id="getClasses" class="qz-btn primary">
+        <a href="/teacher/createQuiz"  data-permission="create_classes" id="getClasses" class="qz-btn primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             New Quiz
         </a>
@@ -350,7 +350,7 @@ $(function () {
                     '<div class="qz-icon">' + svg(ICON.doc, 26) + '</div>' +
                     '<h3>' + (none ? 'No quizzes yet' : 'No quizzes match your search') + '</h3>' +
                     '<p>' + (none ? 'Create your first quiz to get started.' : 'Try a different keyword or filter.') + '</p>' +
-                    (none ? '<a href="/teacher/quizzes/createQuiz" class="qz-btn primary">Create Quiz</a>' : '') +
+                    (none  && Perm.can('create_quizzes') ? '<a href="/teacher/quizzes/createQuiz" class="qz-btn primary">Create Quiz</a>' : '') +
                 '</div>'
             );
             return;

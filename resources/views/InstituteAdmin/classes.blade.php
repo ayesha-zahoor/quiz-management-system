@@ -17,7 +17,8 @@
             <p class="text-muted mb-0">Create and manage classes for your institute</p>
         </div>
 
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#classModal">
+        <button type="button" class="btn btn-primary" data-permission="create_classes" data-bs-toggle="modal" data-bs-target="#classModal">
+           
             <i class="bi bi-plus-lg me-1"></i> Add Class
         </button>
     </div>
@@ -66,6 +67,7 @@
 </div>
 
 {{-- ================= Add / Edit modal ================= --}}
+
 <div class="modal fade" id="classModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -386,7 +388,7 @@
                         <i class="bi ${icon} big"></i>
                         <h6 class="mb-1">${esc(title)}</h6>
                         <p class="mb-${withButton ? '3' : '0'}">${esc(message)}</p>
-                        ${withButton ? '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#classModal"><i class="bi bi-plus-lg me-1"></i> Add Class</button>' : ''}
+                        ${withButton && Perm.can('create_classes') ? '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#classModal"><i class="bi bi-plus-lg me-1"></i> Add Class</button>' : ''}
                     </div>
                 </td>
             </tr>`;
@@ -398,6 +400,10 @@
         const list = sortedClasses(allClasses).filter(item =>
             !query || [item.class_name, item.group].join(' ').toLowerCase().includes(query)
         );
+        const canEdit = Perm.can("edit_classes");
+        const canDelete = Perm.can("delete_classes");
+        const showActions =  canEdit||canDelete;
+        $('th.col-actions').toggleClass('d-none', !showActions); 
 
         $('#classCount').text(query
             ? `${list.length} of ${allClasses.length} classes`
@@ -429,18 +435,14 @@
                     </td>
                     <td><span class="group-badge">${esc(item.group || '—')}</span></td>
                     <td><span class="order-number">${esc(item.sort_order ?? '—')}</span></td>
-                    <td class="text-end pe-4">
-                        <div class="action-buttons">
-                            <button type="button" class="action-btn edit-btn" data-id="${item.id}"
-                                data-bs-toggle="modal" data-bs-target="#classModal">
-                                <i class="bi bi-pencil"></i> Edit
-                            </button>
-                            <button type="button" class="action-btn delete-btn" data-id="${item.id}"
-                                data-bs-toggle="modal" data-bs-target="#deleteClassModal">
-                                <i class="bi bi-trash"></i> Delete
-                            </button>
-                        </div>
-                    </td>
+                   ${showActions ? `
+                <td class="text-end pe-4">
+                <div class="action-buttons">
+                ${canEdit ? `<button type="button" class="action-btn edit-btn" data-id="${item.id}"
+                data-bs-toggle="modal" data-bs-target="#classModal"><i class="bi bi-pencil"></i> Edit</button>` : ''} 
+                ${canDelete ? `<button type="button" class="action-btn delete-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#deleteClassModal"><i class="bi bi-trash"></i> Delete</button>` : ''}
+                </div>
+                </td>` : ''}
                 </tr>`;
         }).join(''));
     }
@@ -465,6 +467,11 @@
     // ---------- Add / Edit ----------
     $('#classModal').on('show.bs.modal', function (event) {
         const trigger = event.relatedTarget ? $(event.relatedTarget).closest('.edit-btn') : $();
+        const isEdit = trigger.length > 0;
+if ((isEdit && !Perm.can('edit_classes')) || (!isEdit && !Perm.can('create_classes'))) {
+    event.preventDefault();
+    return;
+}
 
         $('#classForm')[0].reset();
         clearFieldErrors('#classForm');
@@ -541,6 +548,7 @@
     // ---------- Delete (always asks first) ----------
     $('#deleteClassModal').on('show.bs.modal', function (event) {
         const trigger = $(event.relatedTarget).closest('.delete-btn');
+        if (!Perm.can('delete_classes')) { event.preventDefault(); return; }
         const item = allClasses.find(c => String(c.id) === String(trigger.data('id')));
 
         $('#deleteClassId').val(trigger.data('id') || '');
@@ -571,11 +579,20 @@
             },
             complete: function () {
                 button.prop('disabled', false).text('Delete');
-                $('#deleteClassId').val('');
+                $('#deleteClassModal').on('hidden.bs.modal', function () { $('#deleteClassId').val(''); });
             }
         });
     });
 
-    $(document).ready(loadClasses);
+    $(document).ready(function(){
+        Perm.ready.always(function(){
+            if(!Perm.can('view_classes')){
+                 $('#classesTableBody').html(messageRow('bi-lock', 'No access', 'You do not have permission to view classes.', false));
+            return;
+            }
+            loadClasses();
+
+        })
+    });
 </script>
 @endpush
