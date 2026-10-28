@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\SuperAdmin\InstituteController;
 use App\Http\Controllers\Api\SuperAdmin\InstituteConfigurationController;
 use App\Http\Controllers\Api\SuperAdmin\UserController;
 use App\Http\Controllers\Api\SuperAdmin\PermissionController;
+use App\Http\Controllers\Api\SuperAdmin\IndividualPermissionController;
+
 use App\Http\Controllers\Api\InstituteAdmin\InstituteAdminController;
 use App\Http\Controllers\Api\InstituteAdmin\DashboardController as InstituteAdminDashboardController;
 use App\Http\Controllers\Api\InstituteAdmin\ClassController;
@@ -57,6 +59,16 @@ Route::middleware(['auth:sanctum', 'system.admin'])->group(function () {
 
     Route::get('/permissions', [PermissionController::class, 'index']);
     Route::put('/permissions', [PermissionController::class, 'update']);
+    Route::get('/users/{user}/permissions', [
+    IndividualPermissionController::class,
+    'show'
+]);
+
+Route::put('/users/{user}/permissions', [
+    IndividualPermissionController::class,
+    'update'
+]);
+Route::get('/permission-users', [IndividualPermissionController::class, 'users']);
 });
 
 Route::middleware(['auth:sanctum', 'institute.admin'])->group(function () {

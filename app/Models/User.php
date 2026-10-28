@@ -86,26 +86,39 @@ class User extends Authenticatable
     {
         return $this->hasMany(QuizAttempt::class, 'student_id');
     }
-     public function permissions():BelongsToMany 
-    {
-        return $this->BelongsToMany(Permission::class,'permission_user')->withPivot('allowed')->withTimestamp();
+    
+public function permissions(): BelongsToMany
+{
+    return $this->belongsToMany(Permission::class, 'permission_user')
         ->withPivot('allowed')
         ->withTimestamps();
+}
+
+public function hasPermission(string $permissionName): bool
+{
+    if ($this->role?->role_name === 'system_admin') {
+        return true;
     }
-    public function hasPermisison(string $permissionName):bool{
-        if($this->role?->role_name==="system_admin"){
-            return true;
-        }
-        $permissison = Permission::where('name',$permissionName);
-        if(!$permissison){
-            return false;
-        }
-        $individualPermisison = $this->permissions()->where('permissions.id',$permission->id)->first();
-        if($indivitualPermission){
-            return $this->$individualPermisison->pivot->allowed;
-        }
-        return $this->role()->whereHas('permissions', function($query) use($permissionname){
-            $query->where('name',$permissionName)
-        })->exists();
+
+    $permission = Permission::where('name', $permissionName)->first();
+
+    if (!$permission) {
+        return false;
     }
+
+    $individualPermission = $this->permissions()
+        ->where('permissions.id', $permission->id)
+        ->first();
+
+    if ($individualPermission) {
+        return (bool) $individualPermission->pivot->allowed;
+    }
+
+    return $this->role()
+        ->whereHas('permissions', function ($query) use ($permissionName) {
+            $query->where('name', $permissionName);
+        })
+        ->exists();
+}
+
 }

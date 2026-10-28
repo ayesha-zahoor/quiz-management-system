@@ -80,5 +80,6 @@ Route::view('/student/results', 'student.results');
 Route::view('/teacher/results', 'teacher.results');
 Route::get('/teacher/results/{quiz}', fn ($quiz) => view('teacher.result-detail', ['quizId' => $quiz]));
 Route::view('/instituteAdmin/results', 'InstituteAdmin.results');
-   Route::view('/student/profile', 'student.profile');
-   Route::view('/superAdmin/permissions', 'superAdmin.permissions');
+Route::view('/student/profile', 'student.profile');
+Route::view('/superAdmin/permissions', 'superAdmin.permissions');
+Route::view('/superAdmin/individual-permissions', 'superAdmin.individual-permissions');

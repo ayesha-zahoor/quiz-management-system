@@ -15,6 +15,10 @@
         <i class="bi bi-shield-lock-fill"></i>
         <span>Permissions</span>
     </a>
+      <a href="/superAdmin/individual-permissions" class="nav-item " aria-current="page">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>Permissions</span>
+    </a>
 
     <a href="#" id="profileLink" class="nav-item">
         <i class="bi bi-person-circle"></i>

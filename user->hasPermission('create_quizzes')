@@ -1,0 +1,12 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#8337
+    [34mid[39m: [35m3[39m,
+    [34minstitute_id[39m: [35m1[39m,
+    [34mrole_id[39m: [35m3[39m,
+    [34mname[39m: [32m"[39m[32mTeacher Asad[39m[32m"[39m,
+    [34memail[39m: [32m"[39m[32masad@gmail.com[39m[32m"[39m,
+    [34mstudent_roll_no[39m: [36mnull[39m,
+    #[33mpassword[39m: [32m"[39m\$[32m2y[39m\$[32m12[39m\$[32mYrFM5vbcr981s0SNIBQV0eb.mBLQe2WVY9yk1T4rQKUZYeUTQ/YCq[39m[32m"[39m,
+    [34mprofile_image[39m: [32m"[39m[32mprofile_images/Q8YiRuJ1eHGm2PbUJyvfKPgCGUkRdje8ls6eqNyl.webp[39m[32m"[39m,
+    [34mcreated_at[39m: [32m"[39m[32m2026-09-25 02:17:53[39m[32m"[39m,
+    [34mupdated_at[39m: [32m"[39m[32m2026-10-09 08:09:46[39m[32m"[39m,
+  }

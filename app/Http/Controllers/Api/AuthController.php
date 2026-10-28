@@ -58,10 +58,44 @@ class AuthController extends Controller
         'user' => $request->user()->load('role'),
     ] + $this->permissionPayload($request->user()));
 }
-public function permissions(Request $request): JsonResponse
+public function permissions(Request $request)
 {
-    return response()->json($this->permissionPayload($request->user()));
+    $user  = $request->user()->load('role');
+    $table = (new Permission)->getTable();
+ 
+    // The Super Admin can do everything
+    if ($user->role?->role_name === 'system_admin') {
+        return response()->json([
+            'is_system_admin' => true,
+            'permissions'     => Permission::pluck('name')->values(),
+        ]);
+    }
+ 
+    // 1. What the role gives
+    $allowed = $user->role
+        ? $user->role->permissions()->pluck("{$table}.name")->all()
+        : [];
+ 
+    // 2. Per-user rows win over the role (allowed = 0 blocks, allowed = 1 grants)
+    $overrides = DB::table('permission_user')
+        ->join($table, "{$table}.id", '=', 'permission_user.permission_id')
+        ->where('permission_user.user_id', $user->id)
+        ->pluck('permission_user.allowed', "{$table}.name");
+ 
+    foreach ($overrides as $name => $flag) {
+        if ($flag) {
+            $allowed[] = $name;
+        } else {
+            $allowed = array_diff($allowed, [$name]);
+        }
+    }
+ 
+    return response()->json([
+        'is_system_admin' => false,
+        'permissions'     => array_values(array_unique($allowed)),
+    ]);
 }
+ 
 private function permissionPayload(User $user): array
 {
     $user->loadMissing('role');
